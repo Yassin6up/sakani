@@ -26,7 +26,7 @@ import SuccessModal from "@/components/AddedPlaceModal";
 import { router } from "expo-router";
 import { useTranslation } from 'react-i18next';
 import * as SecureStore from "expo-secure-store";
-
+import { setGlobalFilter } from "@/store/slices/posts";
 const Page = () => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
@@ -44,8 +44,8 @@ const Page = () => {
 
   const handleNext = () => {
     if (currentStep === 3) {
-      if (data.homeType === "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو'  ||
-        data.homeType == 'محلات ومخازن') {
+      if (data.homeType === "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو' 
+        ) {
         if (
           !data.numberOfHomeStage ||
           !data.totalStages ||
@@ -78,6 +78,17 @@ const Page = () => {
         } else {
           setCurrentStep(currentStep + 1);
         }
+      }else if(data.homeType === "مسابح" ||data.homeType === 'صالات رياضة'  ||data.homeType == "قاعات اجتماعات"   ||data.homeType == "ملاعب"  || data.homeType == 'محلات ومخازن'   || data.homeType == 'مخيمات و اكواخ' 
+        
+      ){
+        if(!data.spaceGeneral){
+          Alert.alert("يرجى تعبئة بيانات")
+        }else{
+          setCurrentStep(currentStep + 1);
+        }
+      }else if( data.homeType ===  "تنضيم رحلات" ){
+        setCurrentStep(currentStep + 1);
+
       }
 
       if (data.amenities.length === 0) {
@@ -90,7 +101,7 @@ const Page = () => {
         setCurrentStep(currentStep + 1);
       }
     } else if (currentStep === 5) {
-      if (!data.title || !data.description || !data.price) {
+      if (!data.title || !data.description || !data.price || data.price  == "0") {
         Alert.alert("يرجى تعبئة العنوان والوصف أو السعر");
       } else {
         if (data.homeType == "فيلا / منزل" || data.homeType == "شقة") {
@@ -182,6 +193,8 @@ const Page = () => {
           },
         }
       );
+
+      dispatch(setGlobalFilter())
       setLoading(false);
       setCorrectAdd(true);
       setModalVisible1(true);
@@ -192,7 +205,7 @@ const Page = () => {
       setLoading(false);
       setCorrectAdd(false);
       setIsSubmitting(false);
-      console.error("Error sending data:", error);
+      console.error("Error sending data:", error.response.data.error);
     }
   };
 
@@ -203,7 +216,7 @@ const Page = () => {
   return (
     <>
       <ScrollView style={styles.container}>
-        {currentStep === 1 && <Step1 />}
+        {currentStep === 1 && <Step1 switchStep={handleNext}  />}
         {currentStep === 2 && <Step2 />}
         {currentStep === 3 && <Step3 />}
         {currentStep === 4 && <Step4 />}

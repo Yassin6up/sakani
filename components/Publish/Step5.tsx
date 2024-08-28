@@ -1,17 +1,37 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Image ,TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image ,TextInput , Button  ,TouchableOpacity} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import {  useDispatch, useSelector } from 'react-redux';
-  import {  setPriceCalander , setDaysInCalander ,setPriceHide ,setTitle , setDescription , setAdsAccept ,setHajezType , setPublisherType , setVariablePrice ,setHajez    , setPrice , setBuyOrRent , setOwnerStatus , setRentType} from '@/store/slices/publish';
+  import {  setPriceCalander ,setTriDate , setTimeEnd , setTimeStart , setDaysInCalander , setGettingCalls ,setPriceHide ,setTitle , setDescription , setAdsAccept ,setHajezType , setPublisherType , setVariablePrice ,setHajez    , setPrice , setBuyOrRent , setOwnerStatus , setRentType} from '@/store/slices/publish';
 import Colors from '@/constants/Colors';
 import { Calendar } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 const Step5 = () => {
         const { t } = useTranslation();
 
+        const [startTime, setStartTime] = useState(new Date());
+        const [endTime, setEndTime] = useState(new Date());
+        const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+        const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+    
+        const onStartTimeChange = (event, selectedTime) => {
+            const currentTime = selectedTime || startTime;
+            setShowStartTimePicker(false);
+            setStartTime(currentTime);
+            dispatch(setTimeStart(currentTime))
+        };
+    
+        const onEndTimeChange = (event, selectedTime) => {
+            const currentTime = selectedTime || endTime;
+            setShowEndTimePicker(false);
+            setEndTime(currentTime);
+            dispatch(setTimeEnd(currentTime))
+        };
+        
         const [priceLimmit , setPricelimmit] = useState(false)
         const [showPass , setShowPass]=useState(true)
         const [selectedOption, setSelectedOption] = useState("للبيع");
@@ -45,7 +65,6 @@ const Step5 = () => {
   const changeHajez =(option)=>{
     dispatch(setHajezType(option))
     // setHajezType(option)
-
   }
 
   const daysOfWeek = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
@@ -80,6 +99,15 @@ const Step5 = () => {
     dispatch(setDaysInCalander(Object.keys(selected)))
   };
 
+
+  const onTripDaySelected = (day) => {
+    
+    let date  = day.dateString
+
+    dispatch(setTriDate(date))
+    console.log(data.tripDate)
+
+  };
     return (
         <View style={styles.container}>
             <Text style={styles.title}> {t("step5Title")}</Text>
@@ -100,14 +128,14 @@ const Step5 = () => {
                     <Text style={styles.sectionTitle}>{t("priceInput")}</Text>
                     <View style={{width:"100%"  , alignItems : "flex-end" }}>
                     <TextInput placeholder='0.0' defaultValue={data.price} keyboardType='number-pad' showSoftInputOnFocus={true}  style={{...styles.input , width : "50%"}} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=> {
-                        if(+text <= 100){
+                        if(+text <= 1){
                             setPricelimmit(true)
                         }else{     
                             dispatch(setPrice(text) ) 
                             setPricelimmit(false)
                         }
                     }  }/>
-                    {priceLimmit? <Text style={{color : "red" , fontFamily : 'droidAr' ,  fontSize : 10}}>يجب ان يكون المبلغ اكبر من 100 </Text>   : null}
+                    {priceLimmit? <Text style={{color : "red" , fontFamily : 'droidAr' ,  fontSize : 10}}>يجب ان يكون المبلغ اكبر من 1 </Text>   : null}
                     </View>
                 </View>
  : null}
@@ -123,7 +151,9 @@ const Step5 = () => {
                             <Text style={styles.text}>{t("hidePrice")}</Text>
                         </Pressable>
                     </View>
-                    { data.homeType =="فيلا / منزل"  || data.homeType == "شقة"  || data.homeType == "مزرعة" ||   data.homeType == 'شليهات'?
+
+
+{ data.homeType =="فيلا / منزل"  || data.homeType == "شقة"  || data.homeType == "مزرعة"  || data.homeType == 'مخيمات و اكواخ' ?
                     <View style={styles.box}>
                     <Text style={styles.sectionTitle}>{t("sellMethodInput")}</Text>
                     <View style={styles.slectionBoxes}>
@@ -138,8 +168,29 @@ const Step5 = () => {
                         </Pressable>
                     </View>
                 </View>
-
                 :null}
+
+
+{
+     data.homeType == 'شليهات'  ?
+     <View style={styles.box}>
+     <Text style={styles.sectionTitle}>{t("sellMethodInput")}</Text>
+     <View style={styles.slectionBoxes}>
+         <Pressable style={[styles.boxSelection , data.buyOrRent === 'للبيع' && styles.selectedBox]}  onPress={() => dispatch(setBuyOrRent('للبيع')) }>
+             <Text style={styles.text}>{t("sell")}</Text>
+         </Pressable>
+         <Pressable style={[styles.boxSelection , data.buyOrRent === 'الحجز' && styles.selectedBox]}  onPress={() =>  dispatch(setBuyOrRent('الحجز'))}>
+         <Text style={styles.text}>{t("booking")}</Text>
+     </Pressable>
+         {/* <Pressable style={[styles.boxSelection , data.buyOrRent === 'للإيجار' && styles.selectedBox]}  onPress={() =>dispatch(setBuyOrRent('للإيجار'))}>
+             <Text style={styles.text}>{t("rent")}</Text>
+         </Pressable> */}
+     </View>
+ </View>
+
+     :
+     null
+}
 
 {   data.homeType == 'مكاتب وعيادات' || data.homeType == 'استوديو'  ||
             data.homeType == 'محلات ومخازن' ?
@@ -157,7 +208,7 @@ const Step5 = () => {
                 </View>
                 :null}
 
-            { data.buyOrRent === 'الحجز' ?   
+            {/* { data.buyOrRent === 'الحجز' || data.homeType == 'مسابح' ?   
                             <View style={styles.box}>
                             <Text style={styles.sectionTitle}>{t("bookingTypeInput")}</Text>
                             <View style={styles.slectionBoxes}>
@@ -170,32 +221,108 @@ const Step5 = () => {
                                 </Pressable>
                             </View>
                         </View>
+                            : null} */}
+
+{ data.homeType == 'مسابح'   ||data.homeType == 'صالات رياضة'   || data.homeType == "قاعات اجتماعات"  ||  data.homeType === "ملاعب"?   
+                            <View style={styles.box}>
+                            <Text style={styles.sectionTitle}>{t("ساعات العمل")}</Text>
+                            <View style={styles.slectionBoxes}>
+                                <Pressable style={[styles.boxSelection , data.hajezType === 'beforeNoon' && styles.selectedBox]}  onPress={() => changeHajez('beforeNoon')}>
+                                    <Text style={styles.text}>{t("قبل الضهيرة")}</Text>
+                                    <Text style={{fontSize : 9}}>12:00h - 7:00h</Text>
+                                </Pressable>
+                                
+                                <Pressable style={[styles.boxSelection , data.hajezType === 'afterNoon' && styles.selectedBox]}  onPress={() => changeHajez('afterNoon')}>
+                                    <Text style={styles.text}>{t("بعد الضهيرة")}</Text>
+                                    <Text style={{fontSize : 9}}>8:00h - 1:00h</Text>
+                                </Pressable>
+
+                                <Pressable style={[styles.boxSelection , data.hajezType === '12h' && styles.selectedBox]}  onPress={() => changeHajez('12h')}>
+                                    <Text style={styles.text}>{t("النهار كله")}</Text>
+                                    {/* <Text>10:00م -   7:00ص</Text> */}
+
+                                </Pressable>
+
+                                <Pressable style={[styles.boxSelection , data.hajezType === 'customeTime' && styles.selectedBox]}  onPress={() => changeHajez('customeTime')}>
+                                    <Text style={styles.text}>{t("وقت مخصص")}</Text>
+                                </Pressable>
+
+                            </View>
+                        </View>
                             : null}
 
-
-
-
-                {  data.buyOrRent === 'الحجز' ? (
-                    <View style={{...styles.box , marginBottom : 100
-                    }}>
-                        <Text style={styles.sectionTitle}>{t('bookingAvailabelDays')}</Text>
-                        <View style={styles.slectionBoxes}>
-                        {daysOfWeek.map(day => (
-                            <DaySelection
-                            key={day}
-                            day={day}
-                            isSelected={data.hajezDays.includes(day)}
-                            onSelect={(selectedDay) => dispatch(setHajez(selectedDay))}
+                            
+                {data.homeType == 'مسابح'  ||data.homeType == 'صالات رياضة'  ||data.homeType == "قاعات اجتماعات"   ||data.homeType == "ملاعب"  ?  data.hajezType === 'customeTime' ?(
+                       <View style={{...styles.box , marginBottom : data.hajezDays.length +  300}}>
+                        <Text style={styles.sectionTitle}> {t("timeCustome")}</Text>
+                            <View style={styles.variablePriceContainer}>
+                            <View style={styles.timePickerContainer}>
+                        {/* Start Time Picker */}
+                        <TouchableOpacity style={styles.timeButton} onPress={() => setShowStartTimePicker(true)}>
+                            <Text style={styles.buttonText}>اختر وقت البدء</Text>
+                        </TouchableOpacity>
+                        {showStartTimePicker && (
+                            <DateTimePicker
+                                value={startTime}
+                                mode="time"
+                                is24Hour={true}
+                                display="default"
+                                onChange={onStartTimeChange}
                             />
-                        ))}
-                        </View>
+                        )}
+                        <Text style={styles.selectedTimeText}>وقت البدء المحدد: {startTime.toLocaleTimeString()}</Text>
+
+                        {/* End Time Picker */}
+                        <TouchableOpacity style={styles.timeButton} onPress={() => setShowEndTimePicker(true)}>
+                            <Text style={styles.buttonText}>اختر وقت الانتهاء</Text>
+                        </TouchableOpacity>
+                        {showEndTimePicker && (
+                            <DateTimePicker
+                                value={endTime}
+                                mode="time"
+                                is24Hour={true}
+                                display="default"
+                                onChange={onEndTimeChange}
+                            />
+                        )}
+                        <Text style={styles.selectedTimeText}>وقت الانتهاء المحدد: {endTime.toLocaleTimeString()}</Text>
                     </View>
-                    ) : null
-                }
+                            </View>
+                    </View>
+                    ) : null : null}
 
 
 
-                    {data.buyOrRent === 'الحجز' ? (
+
+
+{data.buyOrRent === 'الحجز' && 
+ (data.homeType !== 'مسابح' && 
+  data.homeType !== 'صالات رياضة' && 
+  data.homeType !== 'قاعات اجتماعات' && 
+  data.homeType !== 'ملاعب') ? (
+    <View style={{...styles.box, marginBottom: 100}}>
+        <Text style={styles.sectionTitle}>{t('bookingAvailabelDays')}</Text>
+        <View style={styles.slectionBoxes}>
+            {daysOfWeek.map(day => (
+                <DaySelection
+                    key={day}
+                    day={day}
+                    isSelected={data.hajezDays.includes(day)}
+                    onSelect={(selectedDay) => dispatch(setHajez(selectedDay))}
+                />
+            ))}
+        </View>
+    </View>
+) : null}
+
+
+
+
+                    {data.buyOrRent === 'الحجز' &&
+ (data.homeType !== 'مسابح' && 
+  data.homeType !== 'صالات رياضة' && 
+  data.homeType !== 'قاعات اجتماعات' && 
+  data.homeType !== 'ملاعب')   ? (
                     <View style={styles.box}>
                         <Text style={styles.sectionTitle}>{t("priceState")}</Text>
                         <View style={styles.slectionBoxes}>
@@ -267,6 +394,25 @@ const Step5 = () => {
                     ) : null}
 
 
+{ data.homeType === "تنضيم رحلات" ? (
+                       <View style={{...styles.box , marginBottom : data.hajezDays.length +  300}}>
+                        <Text style={styles.sectionTitle}> {t("timeTrip")}</Text>
+                            <View style={styles.variablePriceContainer}>
+                            <View style={styles.calendarContainer}>
+                            <Calendar
+                                onDayPress={onTripDaySelected}
+                                markedDates={{
+                                    [data.tripDate]: {selected: true, disableTouchEvent: true, selectedDotColor: 'orange'}
+                                  }}
+                                style={styles.calendar}
+                            />
+                            </View>
+
+                            </View>
+                    </View>
+                    ) : null}
+
+
                 { data.buyOrRent === 'للإيجار' ?   
                 <View style={styles.box}>
                 <Text style={styles.sectionTitle}>{t("rentState")}</Text>
@@ -312,6 +458,25 @@ const Step5 = () => {
                     </Pressable>
                 </View>
                 }
+
+{
+                    data.buyOrRent === 'الحجز'?
+                    null 
+                    :
+                    <View style={styles.box}>
+                    <Text style={styles.sectionTitle}>{t("gettingCalls")}</Text>
+                    <View style={styles.slectionBoxes}>
+                    <Pressable style={[styles.boxSelection , data.gettingCalls === "sms" && styles.selectedBox]}  onPress={() =>  dispatch(setGettingCalls("sms"))}>
+                        <Text style={styles.text}>{"sms"}</Text>
+                    </Pressable>
+                    <Pressable style={[styles.boxSelection , data.gettingCalls === "whatsapp" && styles.selectedBox]}  onPress={() =>dispatch(setGettingCalls("whatsapp"))}>
+                        <Text style={styles.text}>{t("whatssapp")}</Text>
+                    </Pressable>
+                    </View>
+                </View>
+
+                }
+                
 
                
 
@@ -422,6 +587,34 @@ const styles = StyleSheet.create({
         justifyContent : "center"
     },
     variablePriceRow: {  alignItems: 'center', marginVertical: 5 },
+    timePickerContainer: {
+        marginTop: 15,
+    },
+    timeButton: {
+        backgroundColor: Colors.primary,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        marginBottom: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.25,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    selectedTimeText: {
+        fontSize: 16,
+        color: '#2c3e50',
+        marginTop: 5,
+        marginBottom: 15,
+        textAlign: 'center',
+    },
   
 });
 

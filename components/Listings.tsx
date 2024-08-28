@@ -27,7 +27,8 @@ const Listings = ({ listings: items, refresh, category }: Props) => {
 
   const scrollListTop = () => {
     listRef.current?.scrollToOffset({ offset: 0, animated: true });
-  };
+  }
+  
 
   // Use for "updating" the views data after category changed
   useEffect(() => {
@@ -48,7 +49,7 @@ const Listings = ({ listings: items, refresh, category }: Props) => {
       <Link href={`/listing/${item.id}`} asChild>
         <TouchableOpacity>
           <Animated.View style={styles.listing} entering={FadeInRight} exiting={FadeOutLeft}>
-            {photos.length > 0 ? (
+            {photos?.length > 0 ? (
               <Animated.Image
                 source={{
                   uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(item.folderName)}/${encodeURIComponent(photos[0])}`,
@@ -92,7 +93,7 @@ const Listings = ({ listings: items, refresh, category }: Props) => {
       renderItem={renderRow}
       data={loading ? [] : items}
       ref={listRef}
-      ListHeaderComponent={<Text style={styles.info}>{items.length} {t("results")}</Text>}
+      ListHeaderComponent={<Text style={styles.info}>{items?.length} {t("results")}</Text>}
       ListEmptyComponent={<Text style={styles.emptyText}>لا توجد بيانات لعرضها</Text>}
     />
 

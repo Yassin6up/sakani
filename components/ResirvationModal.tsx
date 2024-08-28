@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from 'react-i18next';
 
 const ReservationModal = ({
   visible,
@@ -29,19 +30,17 @@ const ReservationModal = ({
   const [totalPrice, setTotalPrice] = useState(0);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  // const [notAllowdDays , setNotAllowedDays] = useState([])
   const weekDaysPrices = weekDaysObject;
+  const { t, i18n } = useTranslation();
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     setStep(2);
   };
-  useEffect(()=>{
-    console.log("notAllowedDays :" , notAllowedDays)
-      // let notDays = JSON.stringify(notAllowedDays)
-      // notDays = JSON.stringify(notDays)
-      // setNotAllowedDays(notDays)
-  },[])
+
+  useEffect(() => {
+    console.log("notAllowedDays :", notAllowedDays);
+  }, []);
 
   const handleDayPress = (day) => {
     if (notAllowedDays.includes(day.dateString)) {
@@ -119,7 +118,7 @@ const ReservationModal = ({
   };
 
   const getPrice = (dateString) => {
-    const dayOfWeek = new Date(dateString).toLocaleDateString("ar-SA", {
+    const dayOfWeek = new Date(dateString).toLocaleDateString(i18n.language, {
       weekday: "long",
     });
     if (specifiedDates && specifiedDates.includes(dateString)) {
@@ -155,8 +154,8 @@ const ReservationModal = ({
   const renderSelectedDates = () => {
     return Object.keys(selectedDates).map((date) => (
       <View key={date} style={styles.dateDetail}>
-        <Text style={styles.dateText}>Date: {date}</Text>
-        <Text style={styles.priceText}>Price: JOD {priceDetails[date]}</Text>
+        <Text style={styles.dateText}>{t("date")}: {date}</Text>
+        <Text style={styles.priceText}>{t("priceTotal")}: JOD {priceDetails[date]}</Text>
       </View>
     ));
   };
@@ -172,21 +171,21 @@ const ReservationModal = ({
         onPress={() => handleOptionSelect("Night Only")}
       >
         <MaterialIcons name="night-shelter" size={24} color="black" />
-        <Text style={styles.optionText}>Night Only</Text>
+        <Text style={styles.optionText}>{t("nightOnly")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.optionButton}
         onPress={() => handleOptionSelect("Day Only")}
       >
         <MaterialIcons name="wb-sunny" size={24} color="black" />
-        <Text style={styles.optionText}>Day Only</Text>
+        <Text style={styles.optionText}>{t("dayOnly")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.optionButton}
         onPress={() => handleOptionSelect("24 Hours")}
       >
         <MaterialIcons name="access-time" size={24} color="black" />
-        <Text style={styles.optionText}>24 Hours</Text>
+        <Text style={styles.optionText}>{t("24Hours")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -213,7 +212,7 @@ const ReservationModal = ({
       <ScrollView style={styles.detailsContainer}>
         {renderSelectedDates()}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total Price: JOD {totalPrice}</Text>
+          <Text style={styles.totalText}>{t("totalPrice")}: JOD {totalPrice}</Text>
         </View>
       </ScrollView>
     </>
@@ -228,7 +227,7 @@ const ReservationModal = ({
     >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Reserve Your Home</Text>
+          <Text style={styles.title}>{t("bookHome")}</Text>
           {step === 1 ? renderStep1() : renderStep2()}
           <TouchableOpacity
             onPress={() => {
@@ -244,7 +243,7 @@ const ReservationModal = ({
             style={{ ...styles.button, backgroundColor: "transparent" }}
           >
             <Text style={{ ...styles.buttonText, color: "black" }}>
-              {step === 1 ? "Close" : "Back"}
+              {step === 1 ? t("close") : t("back")}
             </Text>
           </TouchableOpacity>
           {step === 2 && (
@@ -260,7 +259,7 @@ const ReservationModal = ({
               }}
               style={styles.button}
             >
-              <Text style={styles.buttonText}>Submit</Text>
+              <Text style={styles.buttonText}>{t("confirm")}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -268,6 +267,7 @@ const ReservationModal = ({
     </Modal>
   );
 };
+
 
 const styles = StyleSheet.create({
   modalBackground: {

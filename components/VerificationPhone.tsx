@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Modal, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
+
 
 const VerificationModal = ({ visible, onClose, onSubmit }) => {
   const [code, setCode] = useState(['', '', '', '']);
-
+const {t} = useTranslation()
   const handleInputChange = (text, index) => {
     const newCode = [...code];
     newCode[index] = text;
@@ -33,12 +35,12 @@ const VerificationModal = ({ visible, onClose, onSubmit }) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Phone Verification</Text>
+            <Text style={styles.headerText}>{t('Phone Verification')}</Text>
             <TouchableOpacity onPress={onClose}>
               <MaterialIcons name="close" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
-          <Text style={styles.instruction}>Enter the 4-digit code sent to your phone</Text>
+          <Text style={styles.instruction}>{t('Enter the 4-digit code sent to your phone')}</Text>
           <View style={styles.inputContainer}>
             {code.map((digit, index) => (
               <TextInput
@@ -53,12 +55,13 @@ const VerificationModal = ({ visible, onClose, onSubmit }) => {
             ))}
           </View>
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+            <Text style={styles.submitButtonText}>{t('Submit')}</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
+  
 };
 
 const styles = StyleSheet.create({

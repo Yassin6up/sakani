@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { TextInput } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
-import DatePicker from 'react-native-modern-datepicker';
+// import DatePicker from 'react-native-modern-datepicker';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import axios from 'axios'; // Make sure you have axios installed
 import { useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ import Colors from '@/constants/Colors';
 import { places } from '@/assets/data/places';
 import { setPlaces } from '@/store/slices/posts';
 import { useTranslation } from 'react-i18next';
+import { Calendar } from 'react-native-calendars';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -31,6 +32,26 @@ const Page = () => {
     setSelectedPlace(0);
     setOpenCard(0);
   };
+
+
+  const handleDayPress = (day) => {
+    // Log the raw date value received from Calendar
+    console.log("Raw date from Calendar:", day.dateString);
+
+    // Function to convert Arabic numerals to English numerals if necessary
+    const convertToEnglishNumerals = (dateString) => {
+      return dateString.replace(/[\u0660-\u0669]/g, (c) => c.charCodeAt(0) - 0x0660)
+                       .replace(/[\u06f0-\u06f9]/g, (c) => c.charCodeAt(0) - 0x06f0);
+    };
+
+    // Apply conversion if needed
+    const englishDate = convertToEnglishNumerals(day.dateString);
+    console.log("Converted date:", englishDate);
+
+    // Update the selected date
+    setSelectedDate(englishDate);
+  };
+
 
   const applyFilters = async () => {
     console.log("start fetching");
@@ -53,7 +74,7 @@ const Page = () => {
       console.log('Filtered data:', response.data);
       
     } catch (error) {
-      console.error('Error applying filters:', error);
+      console.error('Error applying filters:', error.response.data.message);
     }
   };
 
@@ -107,20 +128,31 @@ const Page = () => {
 
         {openCard === 1 && <Text style={styles.cardHeader}>{t('selectDate')}</Text>}
         {openCard === 1 && (
-          <Animated.View style={styles.cardBody}>
-            <DatePicker
-              options={{
-                defaultFont: 'droidAr',
-                headerFont: 'droidAr',
-                mainColor: Colors.primary,
-                borderColor: 'transparent',
-              }}
-              current={today}
-              selected={selectedDate}
-              mode={'calendar'}
-              onDateChange={date => setSelectedDate(date)}
-            />
-          </Animated.View>
+         <Animated.View style={styles.cardBody}>
+         <Calendar
+           // Initial date to display
+           current={today}
+           // Date selected
+           markedDates={{
+             [selectedDate]: { selected: true, marked: true, selectedColor: Colors.primary },
+           }}
+           // Handle day press
+           onDayPress={handleDayPress}
+           // Optional styling
+           theme={{
+             todayTextColor: Colors.primary,
+             arrowColor: Colors.primary,
+             monthTextColor: Colors.primary,
+             textDayFontWeight: 'bold',
+             textMonthFontWeight: 'bold',
+             textDayHeaderFontWeight: 'bold',
+             textDayFontSize: 16,
+             textMonthFontSize: 16,
+             textDayHeaderFontSize: 14,
+           }}
+         />
+         {/* <Text>Selected Date: {selectedDate}</Text> */}
+       </Animated.View>
         )}
       </View>
 

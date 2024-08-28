@@ -21,7 +21,8 @@ import axios from "axios"; // Import Axios
 import Swiper from "react-native-swiper";
 import { ScrollView } from "react-native-gesture-handler";
 import ConfirmDeleteModal from "@/components/DeleteModal";
-
+import PhoneModal from "@/components/PhoneModal";
+import { useSelector } from "react-redux";
 const Page = () => {
   const { t, i18n } = useTranslation();
   const [firstName, setFirstName] = useState("");
@@ -35,8 +36,9 @@ const Page = () => {
   const [error, setError] = useState(null);
   const [visible, setVisible] = useState(false);
   const [refrish, setRefrish] = useState(false);
-
-
+  const [phoneModalVisible, setPhoneModalVisible] = useState(false);
+  const globalSearch  = useSelector((state)=>state.places.value.globalFilter)
+console.log('globalSearch : ' , globalSearch)
   useEffect(() => {
     const getUserData = async () => {
       const user = await SecureStore.getItem("userData");
@@ -154,7 +156,18 @@ const Page = () => {
     };
 
     fetchPlaces();
-  }, [refrish]);
+  }, [refrish , globalSearch]);
+
+  const handleEditPhone = () => {
+    setPhoneModalVisible(true);
+  };
+
+  const updateUserPhone = (newPhoneNumber) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      phone: newPhoneNumber,
+    }));
+  };
 
 
   const formatDate = (dateString) => {
@@ -261,12 +274,23 @@ const Page = () => {
             </View>
           )}
         </View>
-        <View style={{flexDirection:""}} >
-        <Text style={{textAlign : "center"}}>{user.phone}</Text>
+        <View style={{flexDirection:"row" , alignItems : "center",justifyContent : "center"}}>
+        <Pressable style={{padding : 3 , backgtoundColor:Colors.primary}}
+        onPress={handleEditPhone}
+        >
+        <Ionicons
+                  name="create-outline"
+                  size={20}
+                  color={Colors.dark}
+                />   
+                
+                  </Pressable>
+                  <Text style={{textAlign : "center" }}>{user.phone}</Text>
+
         </View>
         <Text style={{ fontFamily: "droidAr" , textAlign : "center" }}>
           {t("joined")} {formatDate(user.created)}
-        </Text>
+        </Text> 
       </View>
 
       
@@ -347,6 +371,19 @@ const Page = () => {
         </Pressable>
 
       
+        <PhoneModal
+        visible={phoneModalVisible}
+        onClose={async(newPhoneNumber) => {
+          if(newPhoneNumber){
+            setUser((pre)=>({...pre , phone:newPhoneNumber}) )
+            await SecureStore.setItemAsync("userData", user);
+          }
+          setPhoneModalVisible(false)}}
+        userId={user.id}
+        updateUserPhone={updateUserPhone}
+      />
+
+
     </ScrollView>
   );
 };

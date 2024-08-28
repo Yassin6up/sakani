@@ -19,7 +19,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FeaturesSheet from '@/components/Publish/FeaturesSheet';
 import { useSelector, useDispatch } from 'react-redux';
-import { setamenities } from '@/store/slices/publish';
+import { Calendar } from 'react-native-calendars';
 
 const HEIGHT = Dimensions.get('window').height;
 
@@ -40,6 +40,8 @@ const EditAd = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [myAd, setAd] = useState(null);
+  const [times, setTimes] = useState([]);
+  const [selectedDayPrice, setSelectedDayPrice] = useState(0);
 
   useEffect(() => {
     const fetchAdDetails = async () => {
@@ -65,6 +67,8 @@ const EditAd = () => {
         setVariablePrices(initialVariablePrices);
         setAd(ad);
         setLoading(false);
+
+        setSelectedDayPrice(ad?.calanderDaysPrice)
       } catch (err) {
         console.error('Error fetching ad details:', err);
         setError('Failed to fetch ad details');
@@ -100,6 +104,17 @@ const EditAd = () => {
     }));
   };
 
+  useEffect(() => {
+    if (myAd?.calanderDaysPrice) {
+      console.log("myAd?.specificDaysInCalendar :", myAd?.specificDaysInCalendar);
+      let data = JSON.parse(myAd?.specificDaysInCalendar);
+      data = JSON.parse(data);
+
+      setTimes(data);
+      console.log("dates ,", data);
+    }
+  }, [myAd]);
+
   const handleSave = async () => {
     try {
       const response = await axios.post(`https://backend.sakanijo.com/ads/update/${id}`, {
@@ -109,6 +124,8 @@ const EditAd = () => {
         amenities: JSON.stringify(data.amenities),
         photos: photos.join(','),
         variable_prices: JSON.stringify(variablePrices),
+        selected_day_price: selectedDayPrice, // Send the selected day's price
+        speceficDayInCalander : times
       });
 
       if (response.status === 200) {
@@ -116,7 +133,7 @@ const EditAd = () => {
         router.back();
       }
     } catch (err) {
-      console.error('Error updating ad:', err);
+      console.error('Error updating ad:', err.response.data.error);
     }
   };
 
@@ -158,7 +175,7 @@ const EditAd = () => {
           keyboardType="numeric"
         />
       </View>
-
+{/* 
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>{t('photos')}</Text>
         <View style={styles.photosContainer}>
@@ -184,9 +201,8 @@ const EditAd = () => {
             <Ionicons name="add-circle" size={40} color={Colors.primary} />
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
 
-      <FeaturesSheet type={typeAd} />
 
       <View style={styles.variablePricesContainer}>
         <Text style={styles.label}>{t('variablePrices')}</Text>
@@ -195,13 +211,57 @@ const EditAd = () => {
             <Text style={styles.variablePriceLabel}>{day}</Text>
             <TextInput
               style={styles.input}
-              value={variablePrices[day] ? variablePrices[day]   : price }
+              defaultValue={variablePrices[day] ? variablePrices[day] : price}
               onChangeText={(value) => handleVariablePriceChange(day, value)}
               keyboardType="numeric"
             />
           </View>
         ))}
       </View>
+
+      {myAd.specificDaysInCalendar !== `"[]"` && myAd.buy_or_rent === 'الحجز' ? (
+        <View style={{ ...styles.box, marginBottom: data.hajezDays.length + 300 }}>
+          <Text style={styles.sectionTitle}> {t("priceByDaysInCalander")}</Text>
+          <View style={styles.variablePriceContainer}>
+            <View style={styles.calendarContainer}>
+              <Calendar
+                markedDates={{
+                  [times]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
+                }}
+                style={styles.calendar}
+                onDayPress={(day) => {
+                  const selectedDate = day.dateString;
+
+                  setTimes((prevTimes) => {
+                    if (prevTimes.includes(selectedDate)) {
+                      // Remove the date if it's already selected (toggle off)
+                      return prevTimes.filter((date) => date !== selectedDate);
+                    } else {
+                      // Add the new date to the selected dates
+                      return  selectedDate;
+                    }
+                  });
+
+                  }}
+              />
+            </View>
+            <View style={styles.variablePriceRow}>
+              <Text style={styles.text}>{t("priceForSelectedDays")}</Text>
+              <TextInput
+                style={{ ...styles.input }}
+                placeholder="ادخل السعر الجديد"
+                value={selectedDayPrice}
+                defaultValue={selectedDayPrice}
+                keyboardType="numeric"
+                onChangeText={(text) => setSelectedDayPrice(text)}
+              />
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+
+    <FeaturesSheet type={typeAd} isEdit={true} />
 
       <Pressable
         onPress={handleSave}
@@ -305,6 +365,55 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'droidAr',
   },
+  box: {
+    padding: 16,
+    display: 'flex',
+    width: "100%",
+    height: 150,
+    gap : 10 ,
+    alignItems : "flex-end"
+    
+},
+required : {
+    color : "red" , 
+},
+calendarContainer: {
+    borderWidth: 3,
+    borderColor: Colors.primary,
+    borderRadius: 20,
+    overflow: 'hidden',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 4,
+    // elevation: 9,
+  },
+  calendar: {
+    borderRadius: 20,
+  },
+
+
+text: {
+    fontFamily: 'droidAr',
+},
+sectionTitle : {
+  fontFamily: 'droidAr',
+  fontSize : 15 
+
+},
+subTitle: {
+  color: 'grey',
+  fontFamily: 'droidAr',
+  textAlign: 'right',
+  marginRight: 50,
+},
+variablePriceContainer: { 
+  flexDirection: 'row',
+  flexWrap : "wrap" , 
+  gap : 3 , 
+  justifyContent : "center"
+},
+variablePriceRow: {  alignItems: 'center', marginVertical: 5 },
+
 });
 
 export default EditAd;

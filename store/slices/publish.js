@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 let initialState ={
   value: {
     homeType: "شقة",
-    price: "0",
+    price: "",
     priceHide : false ,
     farmHasHouse : "لا",
     farmHasWater : "لا",
@@ -37,9 +37,19 @@ let initialState ={
     specificDaysCalanderPrice : "" ,
     longitude : 0 , 
     latitude : 0 , 
-    address : ""
+    address : "" , 
+    poolType : "رجالي"    ,
+    deepPool : "1متر" ,
+    gettingCalls : "whatsapp" ,
+    containSdah : false  , 
+    evacuation : false , 
+    tripLong : "15day" , 
+    tripDate : "" ,
+    timeOpen : {
+      start : null ,
+      end : null
+    }
   
-
   }
 }
 
@@ -47,6 +57,33 @@ const publishData = createSlice({
   name: 'publish',
   initialState ,
   reducers: {
+    setTimeStart : (state, action)=>{
+      state.value.timeOpen.start = action.payload;
+    },
+    setTimeEnd : (state, action)=>{
+      state.value.timeOpen.end = action.payload;
+    },
+    setTriDate : (state, action)=>{
+      state.value.tripDate = action.payload;
+    },
+    setTripLong : (state, action)=>{
+      state.value.tripLong = action.payload;
+    },
+    setEvacuation : (state, action)=>{
+      state.value.evacuation = action.payload;
+    },
+    setContainSdah : (state, action)=>{
+      state.value.containSdah = action.payload;
+    },
+    setGettingCalls : (state, action)=>{
+      state.value.gettingCalls = action.payload;
+    },
+    setDeepPool : (state, action)=>{
+      state.value.deepPool = action.payload;
+    },
+    setTypePool : (state, action)=>{
+      state.value.poolType = action.payload;
+    },
     setDaysInCalander : (state, action)=>{
       state.value.specificDaysInCalander = action.payload;
 
@@ -207,7 +244,16 @@ export const {
   setPriceCalander ,
   setDaysInCalander , 
   setCoordinateData ,
-  setAdress
+  setAdress ,
+  setTypePool ,
+  setDeepPool ,
+  setGettingCalls,
+  setContainSdah ,
+  setEvacuation ,
+  setTripLong ,
+  setTriDate ,
+  setTimeEnd ,
+  setTimeStart
 
 
 

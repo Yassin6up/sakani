@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useLayoutEffect , useState ,useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Share , Linking } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Share ,Platform , Linking, Pressable } from 'react-native';
 import listingsData from '@/assets/data/airbnb-listings.json';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import Animated, {
   SlideInDown,
@@ -11,16 +11,19 @@ import Animated, {
   useAnimatedStyle,
   useScrollViewOffset,
 } from 'react-native-reanimated';
+import DraggableView from '@/components/WtsButton';
 import { defaultStyles } from '@/constants/Styles';
-import axios from "axios"
 const { width } = Dimensions.get('window');
 const IMG_HEIGHT = 300;
+import axios from "axios"
 import * as SecureStore from 'expo-secure-store';
 import CustomAlert from '@/components/Alert';
 import ReservationModal from './../../components/ResirvationModal';
 import Swiper from 'react-native-swiper';
 import { useTranslation } from "react-i18next";
-
+import moment from 'moment';
+import 'moment/locale/ar'; // Import the Arabic locale
+import ResirvationTime from '@/components/ResirvationModalTime';
 const DetailsPage = () => {
   const { t, i18n } = useTranslation();
 
@@ -338,6 +341,30 @@ useEffect(() => {
     Linking.openURL(phoneUrl)
   };
 
+  const sendSMS = (phoneNumber, text = '') => {
+    let smsUrl = `sms:${phoneNumber}`;
+    if (Platform.OS === 'ios') {
+      smsUrl += `&body=${encodeURIComponent(text)}`;
+    } else {
+      smsUrl += `?body=${encodeURIComponent(text)}`;
+    }
+    Linking.openURL(smsUrl);
+
+  };
+
+  const sendWhatsApp = (phoneNumber, text = '') => {
+    let whatsappUrl = `whatsapp://send?phone=${phoneNumber}`;
+    if (text) {
+      whatsappUrl += `&text=${encodeURIComponent(text)}`;
+    }
+    Linking.openURL(whatsappUrl).catch(() => {
+      // Handle error (e.g., WhatsApp not installed)
+      alert('الرجاء تاكد من ان الواتساب محمل على جهازك');
+    });
+  };
+
+  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
   
@@ -351,7 +378,10 @@ useEffect(() => {
     // Format as 'HH:mm dd-MM-yyyy'
     return `${hours}:${minutes} ${day}-${month}-${year}`;
   };
+  moment.locale('ar');
 
+
+  console.log("home type :" , listing?.homeType)
   return (
     <View style={styles.container}>
       <Animated.ScrollView
@@ -383,7 +413,7 @@ useEffect(() => {
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{listing?.title}</Text>
           <Text style={styles.location}>
-            {listing?.buy_or_rent} {t("in")} {listing?.address}
+            {t("in")} {listing?.address}
           </Text>
           {listing?.home_type === "فيلا / منزل" ? (
         <Text style={styles.rooms}>
@@ -406,8 +436,30 @@ useEffect(() => {
           <View style={{ flexDirection: 'row', gap: 4  , alignItems : "center"}}>
             <Ionicons name="heart" size={16} />
             <Text style={styles.ratings}>
-            الاعجابات {t("likes")} | {listing?.heartSave }
+            {t("likes")} | {listing?.heartSave }
             </Text>
+            {
+                  listing?.priceHide == 0 ?
+                  <Text style={{ fontFamily: 'droidAr' , paddingHorizontal: 10  , fontSize:20 }}>JOD {listing?.price}</Text>
+                  :
+                  <Text style={{ fontFamily: 'droidAr' , paddingHorizontal: 10 , fontSize:20 }}> {t("hiddenPrice")} </Text>
+                }
+
+                <TouchableOpacity style={styles.footerText}>
+               
+               {
+                 listing?.buy_or_rent == "الحجز" ?
+                 <Text>{t("night")}</Text>
+                 :
+                 null
+               }
+               
+             </TouchableOpacity>
+              
+
+          
+
+
           </View>
 
           <View style={styles.divider} />
@@ -415,9 +467,16 @@ useEffect(() => {
           <View style={styles.hostView}>
             <Image source={require("@/assets/images/publisherUsers/2.png")} style={styles.host} />
 
-            <View>
+            <View style={{alignItems : "flex-end" , flexDirection : "row"}}>
+              
+       
+
+              <View style={{alignItems : "flex-end" }}>
               <Text style={{ fontWeight: 500, fontSize: 16 , fontFamily : "droidAr" }}>  {t("created_from")} {listing?.ownerName}</Text>
-              <Text style={{fontFamily : "droidAr"}}>{t("inDate")}  {formatDate(listing?.date)} </Text>
+              <Text style={{fontFamily : "droidAr"}}> { moment(listing?.date).fromNow()} </Text>
+
+              </View>
+             
             </View>
           </View>
 
@@ -446,8 +505,79 @@ useEffect(() => {
 
       <Animated.View style={defaultStyles.footer} entering={SlideInDown.delay(200)}>
         <View
-          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <TouchableOpacity style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 20 ,  backgroundColor : "green"
+          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' , gap :10 }}>
+         
+          
+          <Pressable 
+          style={{
+            ...defaultStyles.btn ,
+            backgroundColor :  "#25D366" ,
+            width : "50%" , 
+            height : 50
+          }}
+          onPress={()=>{
+            if(listing?.gettingCalls === "whatsapp"){
+              sendWhatsApp(listing?.ownerPhone , `اريد الاستفسار عن هدا الاعلان https://sakanijo.com/place/${listing?.id}`)
+            }else if(listing?.gettingCalls === "sms"){
+              sendSMS(listing?.ownerPhone ,   `اريد الاستفسار عن هدا الاعلان https://sakanijo.com/place/${listing?.id}`)
+            }
+          }}
+          >
+            
+            <Text style={{
+              fontFamily : "droidAr" , 
+              fontSize : 16 ,
+              color : "#fff" ,
+              
+            }}  >  
+            {
+              listing?.gettingCalls === "whatsapp" ?
+          t('msgWts')
+              :
+              t('msgSms')
+            }
+            </Text>
+          </Pressable>
+
+{
+   listing?.home_type === "ملاعب" || 
+   listing?.home_type === "قاعات اجتماعات" || 
+   listing?.home_type === "صالات رياضة" || 
+   listing?.home_type === "مسابح" ?
+    
+    <ResirvationTime 
+    listingData = {listing}
+    />
+    :
+    <TouchableOpacity style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 20 , backgroundColor : "transparent",
+      borderColor : Colors.primary , borderWidth : 2 ,width : "40%"
+    }]} onPress={()=>{
+      if(listing?.buy_or_rent == "الحجز"){
+        setModalVisible(true)
+      }else{
+        makePhoneCall(listing?.ownerPhone)
+      }
+
+    }}>
+
+      <Text style={{ ...defaultStyles.btnText, fontFamily: "droidAr", color: Colors.primary }}>
+      {
+        listing?.buy_or_rent === "الحجز" ? 
+        t("bookNow") : 
+        t("callNow")
+      }
+    </Text>
+
+    </TouchableOpacity>
+}
+
+
+
+        </View>
+
+
+        
+        <TouchableOpacity style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 20 ,  backgroundColor : "green"
           }]}
           onPress={()=>{
             router.navigate("BookCar")
@@ -455,46 +585,11 @@ useEffect(() => {
           >
 
             <Text style={{...defaultStyles.btnText , fontFamily : "droidAr"}} >  {t("bookCar")}  </Text>
-            
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.footerText}>
-                {
-                  listing?.priceHide == 0 ?
-                  <Text style={{ fontFamily: 'droidAr' }}>JOD {listing?.price}</Text>
-                  :
-                  <Text style={{ fontFamily: 'droidAr' }}> {t("hiddenPrice")} </Text>
-                }
-              
-            {
-              listing?.buy_or_rent == "الحجز" ?
-              <Text>{t("night")}</Text>
-              :
-              null
-            }
-            
-          </TouchableOpacity>
+</TouchableOpacity>
 
-          <TouchableOpacity style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 20 }]} onPress={()=>{
-            if(listing?.buy_or_rent == "الحجز"){
-              setModalVisible(true)
-            }else{
-              makePhoneCall(listing?.ownerPhone)
-            }
+      </Animated.View>
 
-          }}>
-            <Text style={{...defaultStyles.btnText , fontFamily : "droidAr"}} >
-            {
-              listing?.buy_or_rent == "الحجز" ?
-              t("bookNow")
-              :
-              t("callNow")
-            }
-              </Text>
-          </TouchableOpacity>
-        </View>
-
-        <ReservationModal
+      <ReservationModal
           visible={isModalVisible}
           onClose={toggleModal}
           specifiedDates={listing?.specificDaysInCalendar}
@@ -505,14 +600,49 @@ useEffect(() => {
           onSubmit={onsubmitRejester}
           notAllowedDays={notAllowedDays}
         />
-      </Animated.View>
-
 
 <CustomAlert
 icon={"check"}
 message={t("thnksMsg")}
 visible={isAlertShown}
 />
+{/* 
+<Pressable style={{
+  width : 80 , 
+  height : 80 , 
+  borderRadius : "50%" , 
+  backgroundColor : "#25D366" ,
+  position: "absolute" , 
+  right : 5 , 
+  bottom : 100 ,
+  alignItems : "center",
+  justifyContent : "center"
+}}>
+<MaterialCommunityIcons  name='whatsapp' size={40}  color={"white"}/>
+
+<View
+style={{
+  width : 90 , 
+  height : 20 ,
+  backgroundColor : "#25D366" ,
+  borderRadius : 10 , 
+  position : "absolute" , 
+  bottom : -5 ,
+  alignItems : "center",
+  justifyContent : "center"
+}}>
+  <Text style={{
+    fontFamily : "droidAr" , 
+    fontSize : 12 ,
+    color : "white"
+  }}>الاستفسارات</Text>
+</View>
+
+
+</Pressable> */}
+
+{/* <DraggableView /> */}
+
     </View>
   );
 }

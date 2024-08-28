@@ -4,13 +4,13 @@ import { AntDesign } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Fontisto } from '@expo/vector-icons';
 import { useDispatch , useSelector } from 'react-redux';
-import { setHomeType , setResetAll } from '@/store/slices/publish';
+import { setHomeType , setResetAll , setBuyOrRent  } from '@/store/slices/publish';
 import { farmImg , apprtementImg , houseImg , locationImg , chalihat , meetingRoom,
-  doctor , studio , superMarket
+  doctor , studio , superMarket , pool , gym ,football , meeting , tent ,travel
  } from '../intializeImages';
 import { useTranslation } from 'react-i18next';
 
-const Step1 = () => {
+const Step1 = ({switchStep}) => {
     const dispatch = useDispatch()
     const data = useSelector((state)=> state.publishData.value)
 
@@ -32,21 +32,28 @@ useEffect(()=>{
       <View style={styles.boxesContainer}>
         <Pressable
           style={[styles.box, data.homeType === 'فيلا / منزل'  && styles.selectedBox]}
-          onPress={() => handleSelect('فيلا / منزل')}
+          onPress={() => {
+            handleSelect('فيلا / منزل')
+            switchStep()
+          }}
         >
           <Image  source={houseImg} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t("home")}</Text>
         </Pressable>
         <Pressable
           style={[styles.box, data.homeType === 'شقة' && styles.selectedBox]}
-          onPress={() => handleSelect('شقة')}
+          onPress={() =>{ handleSelect('شقة')
+            switchStep()
+          }}
         >
           <Image  source={apprtementImg} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t("apartment")}</Text>
         </Pressable>
         <Pressable
           style={[styles.box, data.homeType === 'مزرعة' && styles.selectedBox]}
-          onPress={() => handleSelect('مزرعة')}
+          onPress={() => {handleSelect('مزرعة')
+            switchStep()
+          }}
         >
           <Image  source={farmImg} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t("agriculture")}</Text>
@@ -54,7 +61,9 @@ useEffect(()=>{
 
         <Pressable
           style={[styles.box, data.homeType === 'ارض' && styles.selectedBox]}
-          onPress={() => handleSelect('ارض')}
+          onPress={() => {handleSelect('ارض')
+            switchStep()
+          }}
         >
           <Image  source={locationImg} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t("terrain")}</Text>
@@ -63,7 +72,9 @@ useEffect(()=>{
 
         <Pressable
           style={[styles.box, data.homeType === 'شليهات' && styles.selectedBox]}
-          onPress={() => handleSelect('شليهات')}
+          onPress={() => {handleSelect('شليهات')
+            switchStep()
+          }}
         >
           <Image  source={chalihat} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t("شليهات")}</Text>
@@ -71,25 +82,95 @@ useEffect(()=>{
 
         <Pressable
           style={[styles.box, data.homeType === 'استوديو' && styles.selectedBox]}
-          onPress={() => handleSelect('استوديو')}
+          onPress={() => {handleSelect('استوديو')
+            switchStep()
+          }}
         >
           <Image  source={studio} style={{width : 24 , height : 24}}/>
           <Text style={styles.text}>{t('استوديو')}</Text>
         </Pressable>
         <Pressable
           style={[styles.box, data.homeType === 'محلات ومخازن' && styles.selectedBox]}
-          onPress={() => handleSelect('محلات ومخازن')}
+          onPress={() => {handleSelect('محلات ومخازن')
+            switchStep()
+          }}
         >
           <Image  source={superMarket} style={{width : 24 , height : 24}}/>
-          <Text style={styles.text}>{t('محلات ومخازن')}</Text>
+          <Text style={styles.text}>{t('shopsAndWarehouses')}</Text>
         </Pressable>
         <Pressable
           style={[styles.box, data.homeType === 'مكاتب وعيادات' && styles.selectedBox]}
-          onPress={() => handleSelect('مكاتب وعيادات')}
+          onPress={() => {handleSelect('مكاتب وعيادات')
+            switchStep()
+          }}
         >
           <Image  source={doctor} style={{width : 24 , height : 24}}/>
-          <Text style={styles.text}>{t('مكاتب وعيادات')}</Text>
+          <Text style={styles.text}>{t('officesAndClinics')}</Text>
         </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === 'مسابح' && styles.selectedBox]}
+          onPress={() => {handleSelect('مسابح')
+            dispatch(setBuyOrRent("الحجز"))
+            
+            switchStep()
+          }}
+        >
+          <Image  source={pool} style={{width : 24 , height : 24}}/>
+          <Text style={styles.text}>{t('مسبح')}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === 'صالات رياضة' && styles.selectedBox]}
+          onPress={() => {handleSelect('صالات رياضة')
+            dispatch(setBuyOrRent("الحجز"))
+            switchStep()
+          }}
+        >
+          <Image  source={gym} style={{width : 24 , height : 24}}/>
+          <Text style={styles.text}>{t('صالات رياضة')}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === 'مخيمات و اكواخ' && styles.selectedBox]}
+          onPress={() => {handleSelect('مخيمات و اكواخ')
+            switchStep()
+          }}
+        >
+          <Image  source={tent} style={{width : 24 , height : 24}}/>
+          <Text style={styles.text}>{t('مخيمات و اكواخ')}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === "قاعات اجتماعات" && styles.selectedBox]}
+          onPress={() => {handleSelect("قاعات اجتماعات")
+            dispatch(setBuyOrRent("الحجز"))
+            switchStep()
+          }}
+        >
+          <Image  source={meeting} style={{width : 24 , height : 24}}/>
+          <Text style={styles.text}>{t("قاعات اجتماعات")}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === "تنضيم رحلات" && styles.selectedBox]}
+          onPress={() => {handleSelect("تنضيم رحلات")
+            dispatch(setBuyOrRent("الحجز"))
+            switchStep()
+          }}
+        >
+          <Image  source={travel} style={{width : 24 , height : 24}}/>
+
+          <Text style={styles.text}>{t("تنضيم رحلات")}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.box, data.homeType === "ملاعب" && styles.selectedBox]}
+          onPress={() => {
+            handleSelect("ملاعب")
+            dispatch(setBuyOrRent("الحجز"))
+            switchStep()
+          }}
+        >
+          
+          <Image  source={football} style={{width : 24 , height : 24}}/>
+          <Text style={styles.text}>{t("ملاعب")}</Text>
+        </Pressable>
+
 
       </View>
     </View>

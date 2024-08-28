@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "config": {
@@ -29,7 +31,12 @@
           "apiKey": "AIzaSyAjyJoeDP5a6ZJq8ggBcIOLjGGzPLzLxog"
         }
       },
-      "package": "com.yassin6up.sakaniJo"
+      "package": "com.yassin6up.sakaniJo",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -60,10 +67,10 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b32100bf-bf64-4069-82ca-4271da782e35"
+        "projectId": "bf1b2bef-a8a9-461f-b57e-5f0bf69697f3"
       }
     },
-    "owner": "yassin6up"
+    "owner": "elhardouf"
   },
   "android": {
     "enableHermes": false

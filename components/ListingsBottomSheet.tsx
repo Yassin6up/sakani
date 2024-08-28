@@ -1,5 +1,5 @@
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import Listings from '@/components/Listings';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,17 +9,25 @@ interface Props {
   listings: any[];
   category: string;
 }
+import { useSelector } from 'react-redux';
 
 // Bottom sheet that wraps our Listings component
 const ListingsBottomSheet = ({ listings, category }: Props) => {
-  const snapPoints = useMemo(() => ['10%', '100%'], []);
+  const snapPoints = useMemo(() => ['10%', '75%'], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [refresh, setRefresh] = useState<number>(0);
+  const isFilter = useSelector((state)=> state.places.value.isFilter)
 
   const onShowMap = () => {
     bottomSheetRef.current?.collapse();
     setRefresh(refresh + 1);
   };
+  useEffect(()=>{
+if(isFilter){
+  bottomSheetRef.current?.collapse();
+}
+  },[isFilter])
+
   const { t } = useTranslation();
 
   return (

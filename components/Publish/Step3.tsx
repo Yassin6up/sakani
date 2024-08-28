@@ -1,11 +1,12 @@
 import React , {useState} from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput , Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentHomeStage , setTotalStages , setSpaceGeneral ,incrementRoomsNumber, decrementRoomsNumber, setHomeType , setFarmHasHouse , setFarmHasFarmed  , setFarmHasWater , setLandInFaceOfStreet , setNumberOfStreetsInLand } from '@/store/slices/publish'; // Import actions
+import { setCurrentHomeStage , setTripLong , setTotalStages , setEvacuation  , setContainSdah , setDeepPool, setTypePool , setSpaceGeneral ,incrementRoomsNumber, decrementRoomsNumber, setHomeType , setFarmHasHouse , setFarmHasFarmed  , setFarmHasWater , setLandInFaceOfStreet , setNumberOfStreetsInLand } from '@/store/slices/publish'; // Import actions
 import Colors from '@/constants/Colors';
 import FeaturesSheet from './FeaturesSheet';
 import { useTranslation } from 'react-i18next';
-
+import { ScrollView } from 'react-native-gesture-handler';
+const { height } = Dimensions.get('window');
 const Step3 = () => {
     const { t } = useTranslation();
 
@@ -74,7 +75,7 @@ const Step3 = () => {
      
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.title}>{t("step3Title")}</Text>
             <Text style={styles.subTitle}>{t("stepSubTitle")} {data.homeType}</Text>
 
@@ -118,16 +119,16 @@ const Step3 = () => {
                     onDecrement={() => handleDecrement('stages')}
                 />  : null} */}
 
-
-            <View style={styles.boxInput}>
-                    <Text style={styles.sectionTitle}>{t("realEstateSpace")}<Text style={styles.required}>*</Text>
+{
+    data.homeType == "تنضيم رحلات"  ? null :  (    <View style={styles.boxInput}>
+    <Text style={styles.sectionTitle}>{t("realEstateSpace")}<Text style={styles.required}>*</Text>
 </Text>
-                    <TextInput keyboardType='numeric' defaultValue={data.spaceGeneral} placeholder='2م' style={styles.input} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setSpaceGeneral(text))}}/>
+    <TextInput keyboardType='numeric' defaultValue={data.spaceGeneral} placeholder='2م' style={styles.input} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setSpaceGeneral(text))}}/>
+</View>)
+}
 
-            </View>
 
-            { data.homeType == "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو'  ||
-            data.homeType == 'محلات ومخازن' ? <>
+            { data.homeType == "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو'   || data.homeType == "قاعات اجتماعات" ? <>
             <View style={styles.boxInput}>
                     <Text style={styles.sectionTitle}> {t("numberOfStages")} <Text style={styles.required}>*</Text>
             </Text>
@@ -136,14 +137,125 @@ const Step3 = () => {
 
             <View style={styles.boxInput}>
                     <Text style={styles.sectionTitle}> {t("homesNumber")} :<Text style={styles.required}>*</Text>
-</Text>
+                </Text>
                     <TextInput placeholder="10" defaultValue={data.totalStages}  style={styles.input} textAlign='right' keyboardType='numeric' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setTotalStages(text))}}/>
             </View>
             </>
   : null}
 
+  
+{ data.homeType == 'محلات ومخازن'? <>
+            <View style={styles.boxInput}>
+                    <Text style={styles.sectionTitle}> {t("haveSdah")} <Text style={styles.required}>*</Text>
+            </Text>
+            <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.containSdah === true && styles.selectedBox]}  onPress={() => dispatch(setContainSdah(true))}>
+                            <Text style={styles.text}>{t("yes")}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.containSdah === false && styles.selectedBox]}  onPress={() =>  dispatch(setContainSdah(false))}>
+                            <Text style={styles.text}>{t("no")}</Text>
+                        </Pressable>
+                    </View>
+            </View>
+
+            <View style={styles.boxInput}>
+                    <Text style={styles.sectionTitle}> {t("evacuation")} <Text style={styles.required}>*</Text>
+            </Text>
+            <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.evacuation === true && styles.selectedBox]}  onPress={() => dispatch(setEvacuation(true))}>
+                            <Text style={styles.text}>{t("yes")}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.evacuation === false && styles.selectedBox]}  onPress={() =>  dispatch(setEvacuation(false))}>
+                            <Text style={styles.text}>{t("no")}</Text>
+                        </Pressable>
+                    </View>
+            </View>    
+            </>
+  : null}
 
 
+
+{ data.homeType == "مسابح"  ?
+   <>
+                    <Text style={styles.sectionTitle}> {t("نوع المسبح")}</Text>
+                    <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.poolType === 'رجالي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("رجالي"))}>
+                            <Text style={styles.text}>{t("رجالي")}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.poolType === 'نسائي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("نسائي"))}>
+                            <Text style={styles.text}>{t("نسائي")}</Text>
+                        </Pressable>
+                    </View>
+
+                    <Text style={styles.sectionTitle}>{t("مدى غرق السبح")}</Text>
+                    <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.deepPool === '1متر' && styles.selectedBox]}  onPress={() => dispatch(setDeepPool('1متر'))}>
+                            <Text style={styles.text}>{t('1متر')}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.deepPool === '2متر' && styles.selectedBox]}  onPress={() => dispatch(setDeepPool('2متر'))}>
+                            <Text style={styles.text}>{t('2متر')}</Text>
+                        </Pressable>
+                        <Pressable style={[styles.boxSelection , data.deepPool === '3متر' && styles.selectedBox]}  onPress={() => dispatch(setDeepPool('3متر'))}>
+                            <Text style={styles.text}>{t('3متر')}</Text>
+                        </Pressable>
+
+                        <Pressable style={[styles.boxSelection , data.deepPool === "اكتر من 4 امتار" && styles.selectedBox]}  onPress={() => dispatch(setDeepPool("اكتر من 4 امتار"))}>
+                            <Text style={styles.text}>{t("اكتر من 4 امتار")}</Text>
+                        </Pressable>
+                    </View>
+                    </>
+                :null}
+
+
+
+
+{ data.homeType == "تنضيم رحلات"  ?
+   <>
+
+                    <Text style={styles.sectionTitle}>{t("voyage long")}</Text>
+                    <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.tripLong === '15day' && styles.selectedBox]}  onPress={() => dispatch(setTripLong('15day'))}>
+                            <Text style={styles.text}>{t('15day')}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.tripLong === '1semane' && styles.selectedBox]}  onPress={() => dispatch(setTripLong('1semane'))}>
+                            <Text style={styles.text}>{t('1semane')}</Text>
+                        </Pressable>
+                        <Pressable style={[styles.boxSelection , data.tripLong === '1month' && styles.selectedBox]}  onPress={() => dispatch(setTripLong('1month'))}>
+                            <Text style={styles.text}>{t('1month')}</Text>
+                        </Pressable>
+
+                        <Pressable style={[styles.boxSelection , data.tripLong === "6month" && styles.selectedBox]}  onPress={() => dispatch(setTripLong("6month"))}>
+                            <Text style={styles.text}>{t("6month")}</Text>
+                        </Pressable>
+                        <Pressable style={[styles.boxSelection , data.tripLong === "3month" && styles.selectedBox]}  onPress={() => dispatch(setTripLong("3month"))}>
+                            <Text style={styles.text}>{t("3month")}</Text>
+                        </Pressable>
+                    </View>
+                    </>
+                :null}
+
+
+
+
+{ data.homeType == 'صالات رياضة'  ?
+   <>
+                    <Text style={styles.sectionTitle}> {t("نوع الصالة")}</Text>
+                    <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.poolType === 'رجالي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("رجالي"))}>
+                            <Text style={styles.text}>{t("رجالي")}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.poolType === 'نسائي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("نسائي"))}>
+                            <Text style={styles.text}>{t("نسائي")}</Text>
+                        </Pressable>
+                    </View>
+                    </>
+                :null}
 
    { data.homeType == "مزرعة"  ?
    <>
@@ -208,10 +320,10 @@ const Step3 = () => {
          : null
     }
 
-            <FeaturesSheet  /> 
 
 
-        </View>
+            <FeaturesSheet isEdit={false} />   
+        </ScrollView>
     );
 };
 
@@ -234,8 +346,9 @@ const RoomBox = React.memo(({ title, count, onIncrement, onDecrement }) => {
 
 const styles = StyleSheet.create({
     container: {
-        paddingBottom : 60 ,
+        paddingBottom : 50 ,
         flex : 1,
+        height :height
         
     },
     subTitle: {

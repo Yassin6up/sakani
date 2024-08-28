@@ -15,6 +15,7 @@ const SuccessModal = ({ isVisible, onClose }) => {
         <View style={styles.modalContent}>
           <MaterialIcons name="check-circle-outline" size={60} color="green" style={styles.icon} />
           <Text style={styles.message}>تمت اضافة الاعلان بنجاح !</Text>
+          <Text style={styles.message}> سيتم الموافقة عليه قريبا</Text>
           <TouchableOpacity style={styles.button} onPress={onClose}>
             <Text style={styles.buttonText}>الصفحة الرئيسية</Text>
           </TouchableOpacity>

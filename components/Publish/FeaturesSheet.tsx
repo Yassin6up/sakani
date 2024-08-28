@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useRef, useState , useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
-import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetView, BottomSheetModalProvider , BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Colors from '@/constants/Colors';
 import { setamenities, setHomeType } from '@/store/slices/publish';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 
-const App = ({type}) => {
+const App = ({type , isEdit}) => {
   const dispatch = useDispatch();
   const data = useSelector((state)=> state.publishData.value)
   const [list  , setList] = useState([])
@@ -25,6 +25,12 @@ const App = ({type}) => {
     const studio = t("featureStudio")
     const shops = t("featureShops")
     const shalet = t('featrdShalet')
+    const pool = t('featureSwimmingPool')
+    const gym = t("featureGym")
+    const camp = t("featureCampsAndCabins")
+    const meeting = t("featureMeetingRooms")
+    const trip = t("featureTripOrganization")
+    const stadium = t("featureSportsFields")
     console.log("office :" , office)
 
     if(type){
@@ -52,8 +58,25 @@ const App = ({type}) => {
         break;
         case 'شليهات' :
           setList(JSON.parse(shalet))
+        case 'مسابح' :
+          setList(JSON.parse(pool))
+        break;
+        case 'صالات رياضة' :
+          setList(JSON.parse(gym))
         break;
 
+        case 'مخيمات و اكواخ' :
+          setList(JSON.parse(camp))
+        break;
+        case "قاعات اجتماعات" :
+          setList(JSON.parse(meeting))
+        break;
+        case "تنضيم رحلات" :
+          setList(JSON.parse(trip))
+        break;
+        case "ملاعب":
+          setList(JSON.parse(stadium))
+        break;
     
       default:
         break;
@@ -84,8 +107,28 @@ const App = ({type}) => {
         case 'شليهات' :
           setList(JSON.parse(shalet))
         break;
+        case 'مسابح' :
+          setList(JSON.parse(pool))
+        break;
+        case 'صالات رياضة' :
+          setList(JSON.parse(gym))
+        break;
+        case 'مخيمات و اكواخ' :
+          setList(JSON.parse(camp))
+        break;
 
+        case "قاعات اجتماعات" :
+          setList(JSON.parse(meeting))
+        break;
+        case "تنضيم رحلات" :
+          setList(JSON.parse(trip))
+        break;
+        case "ملاعب":
+          setList(JSON.parse(stadium))
+        break;
+    
         
+
       default:
         break;
     }
@@ -100,7 +143,7 @@ const App = ({type}) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // variables
-  const snapPoints = useMemo(() => ['25%', '60%'], []);
+  const snapPoints = isEdit? useMemo(() => ['15%', '30%']  , []) : useMemo(() => ['25%', '60%']  , []) ;
 
   // callbacks
   const handlePresentModalPress = useCallback(() => {
@@ -134,7 +177,7 @@ const App = ({type}) => {
           index={1}
           snapPoints={snapPoints}
         >
-          <BottomSheetView style={styles.contentContainer}>
+          <BottomSheetScrollView style={styles.contentContainer}>
             <Text style={{ fontFamily: "droidAr", textAlign: "center" }}>{t("Features")}</Text>
             <View style={styles.boxesContainer}>
               {list.map((feature, index) => (
@@ -150,7 +193,7 @@ const App = ({type}) => {
                 </Pressable>
               ))}
             </View>
-          </BottomSheetView>
+          </BottomSheetScrollView>
         </BottomSheetModal>
       </View>
     </BottomSheetModalProvider>
@@ -208,7 +251,7 @@ boxesContainer: {
     padding: 15,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    // justifyContent: 'center',
     flexWrap: 'wrap',
     gap: 10,
 },

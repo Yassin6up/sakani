@@ -25,9 +25,9 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
   const selectCategory = (index: number, type: string) => {
     const selected = itemsRef.current[index];
     setActiveIndex(index);
-    selected?.measure((x) => {
-      scrollRef.current?.scrollTo({ x: x - 16, y: 0, animated: true });
-    });
+    // selected?.measure((x) => {
+    //   scrollRef.current?.scrollTo({ x: x - 16, y: 0, animated: true });
+    // });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const categoryList = 
@@ -43,11 +43,11 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
     console.log("selected category :" , selectedCategory)
 
     let url = `https://backend.sakanijo.com/api/places?category=${selectedCategory}&type=${type}`
-
+    
     
     
     // Send data to backend
-    axios.get(selectedCategory ==="الكل" ?"https://backend.sakanijo.com/api/places" : url )
+    axios.get(url)
     .then(response => {
       
       console.log('Data sent successfully:', response.data.places);
@@ -96,6 +96,16 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
       name: t('studio'),
       icon: 'view-quilt',
       slug: 'استوديوهات',
+    },
+    {
+      name: t('shopsAndWarehouses'),
+      icon: 'storefront',
+      slug: 'محلات ومخازن',
+    },
+    {
+      name: t('officesAndClinics'),
+      icon: 'business',
+      slug: 'مكاتب وعيادات',
     }
   ];
   
@@ -124,6 +134,16 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
       name: t('terrain'),
       icon: 'terrain',
       slug: 'ارض',
+    },
+    {
+      name: t('shopsAndWarehouses'),
+      icon: 'storefront',
+      slug: 'محلات ومخازن',
+    },
+    {
+      name: t('officesAndClinics'),
+      icon: 'business',
+      slug: 'مكاتب وعيادات',
     }
   ];
   
@@ -167,37 +187,36 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
     {
       name: t('sports_fields'),
       icon: 'stadium',
-      slug: 'ملاعب كرة القدم',
-    },
-    {
-      name: t('mens_fitness_centers'),
-      icon: 'sports-martial-arts',
-      slug: 'مراكز لياقة بدنية للرجال',
+      slug: "ملاعب",
     },
     {
       name: t('womens_fitness_centers'),
       icon: 'sports-gymnastics',
-      slug: 'مراكز لياقة بدنية للنساء',
+      slug: 'صالات رياضة',
     },
     {
       name: t('trip_organizing'),
       icon: 'hiking',
-      slug: 'تنظيم رحلات ومغامرات',
+      slug: "تنضيم رحلات",
     },
     {
       name: t('camps_and_cabins'),
       icon: 'cabin',
-      slug: 'مخيمات وكبائن',
+      slug: 'مخيمات و اكواخ',
+    },
+    {
+      name: t('shopsAndWarehouses'),
+      icon: 'storefront',
+      slug: 'محلات ومخازن',
     }
   ];
   
 
   const renderCategories = (type: string) => {
-    console.log("type :" , type)
     const categoryList = 
     type === 'للإيجار' ? categoriesRent :
     type === 'للبيع' ? categoriesSale :
-    categoriesBooking; // Assuming 'categoriesDays' was intended to be 'categoriesBooking'
+    categoriesBooking; 
 
     return categoryList.map((item, index) => (
       <TouchableOpacity

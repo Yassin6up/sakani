@@ -74,7 +74,7 @@ const [pageState, setPageState] = useState("login")
           await saveToken('token', response.data.sessionToken);
           await saveToken('userId', response.data.user.id.toString());
           await saveToken('userData', JSON.stringify(response.data.user));
-
+            
           
           router.replace("/(tabs)/")
           // setIcon("check")
