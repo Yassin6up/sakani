@@ -31,7 +31,6 @@ const App = ({type , isEdit}) => {
     const meeting = t("featureMeetingRooms")
     const trip = t("featureTripOrganization")
     const stadium = t("featureSportsFields")
-    console.log("office :" , office)
 
     if(type){
     switch (type) {
@@ -143,7 +142,7 @@ const App = ({type , isEdit}) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // variables
-  const snapPoints = isEdit? useMemo(() => ['15%', '30%']  , []) : useMemo(() => ['25%', '60%']  , []) ;
+  const snapPoints = isEdit? useMemo(() => ['15%', '70%']  , []) : useMemo(() => ['25%', '60%']  , []) ;
 
   // callbacks
   const handlePresentModalPress = useCallback(() => {
@@ -184,7 +183,7 @@ const App = ({type , isEdit}) => {
                 <Pressable
                   key={index}
                   style={[
-                    styles.boxSelection,
+                    styles.boxSelection2,
                     selectedItems.includes(feature) && styles.selectedBox
                   ]}
                   onPress={() => handlePress(feature)}
@@ -217,6 +216,7 @@ const styles = StyleSheet.create({
     paddingLeft : 20 , 
     paddingRight : 20 , 
     height : 50 , 
+    marginTop : 120 ,
     borderWidth: 1,
     borderColor: '#dddddd',
     borderStyle: 'solid',
@@ -224,6 +224,18 @@ const styles = StyleSheet.create({
     display : "flex",
     justifyContent: "center" ,
     alignItems : "center"
+},
+boxSelection2 : {
+  paddingLeft : 20 , 
+  paddingRight : 20 , 
+  height : 50 , 
+  borderWidth: 1,
+  borderColor: '#dddddd',
+  borderStyle: 'solid',
+  borderRadius: 8,
+  display : "flex",
+  justifyContent: "center" ,
+  alignItems : "center"
 },
 sectionTitle : {
   fontFamily: 'droidAr',

@@ -37,8 +37,8 @@ const Page = () => {
   const [visible, setVisible] = useState(false);
   const [refrish, setRefrish] = useState(false);
   const [phoneModalVisible, setPhoneModalVisible] = useState(false);
-  const globalSearch  = useSelector((state)=>state.places.value.globalFilter)
-console.log('globalSearch : ' , globalSearch)
+  const globalSearch = useSelector((state) => state.places.value.globalFilter);
+  console.log("globalSearch : ", globalSearch);
   useEffect(() => {
     const getUserData = async () => {
       const user = await SecureStore.getItem("userData");
@@ -55,15 +55,15 @@ console.log('globalSearch : ' , globalSearch)
     getUserData();
   }, []);
 
-  const photosBooking = booking?.photos?.split(',');
-  const photoAds = ads?.photos?.split(',');
+  const photosBooking = booking?.photos?.split(",");
+  const photoAds = ads?.photos?.split(",");
 
   const onSaveUser = async () => {
     try {
       const userId = await SecureStore.getItem("userId");
       console.log(userId);
       const response = await axios.post(
-        `https://backend.sakanijo.com/user/update-name`,
+        `https://test.sakanijo.com/user/update-name`,
         {
           name: firstName + " " + lastName,
           id: userId,
@@ -93,70 +93,81 @@ console.log('globalSearch : ' , globalSearch)
     i18n.changeLanguage(i18n.language === "ar" ? "en" : "ar");
   };
 
-  const renderAdItem = ({ item , type}) => (
+  const renderAdItem = ({ item, type }) => (
     <View style={styles.adCard}>
-      <Image source={{ uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(item.folderName)}/${encodeURIComponent( item.photos?.split(',')[0] )}` }} style={styles.adImage} />
+      <Image
+        source={{
+          uri: `https://test.sakanijo.com/api/images/${encodeURIComponent(
+            item.folderName
+          )}/${encodeURIComponent(item.photos?.split(",")[0])}`,
+        }}
+        style={styles.adImage}
+      />
       <View style={styles.adButtons}>
-        <TouchableOpacity style={styles.adButton} onPress={() => router.navigate("/updateAds?id="+item.id)}>
+        <TouchableOpacity
+          style={styles.adButton}
+          onPress={() => router.navigate("/updateAds?id=" + item.id)}>
           <Ionicons name="create-outline" size={24} color={Colors.dark} />
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.adButton} onPress={()=> setVisible(true)}>
+
+        <TouchableOpacity
+          style={styles.adButton}
+          onPress={() => setVisible(true)}>
           <Ionicons name="trash-outline" size={24} color={Colors.dark} />
         </TouchableOpacity>
       </View>
       <Text style={styles.adTitle}>{item.title}</Text>
 
-      <ConfirmDeleteModal 
-      isVisible={visible}
-      onConfirm={async () => {
-        try {
-          const response = await axios.post(`https://backend.sakanijo.com/delete/places/${item.id}`);
-          if (response.status === 200) {
-            setRefrish(!refrish)
-            setVisible(false)
+      <ConfirmDeleteModal
+        isVisible={visible}
+        onConfirm={async () => {
+          try {
+            const response = await axios.post(
+              `https://test.sakanijo.com/delete/places/${item.id}`
+            );
+            if (response.status === 200) {
+              setRefrish(!refrish);
+              setVisible(false);
+            }
+          } catch (error) {
+            console.error("Error deleting place:", error);
+          } finally {
           }
-        } catch (error) {
-          console.error('Error deleting place:', error);
-        } finally {
-        }
-        // delete item
+          // delete item
         }}
-        onClose={()=>{
-          setVisible(false)
+        onClose={() => {
+          setVisible(false);
         }}
-      
-      
-
-
       />
     </View>
   );
-
 
   useEffect(() => {
     const fetchPlaces = async () => {
       const ownerId = await SecureStore.getItem("userId");
       console.log(ownerId);
-      
-      try {
-        const response = await axios.get('https://backend.sakanijo.com/profile/places', {
-          params: { ownerId }
-        });
 
-        console.log(response)
+      try {
+        const response = await axios.get(
+          "https://test.sakanijo.com/profile/places",
+          {
+            params: { ownerId },
+          }
+        );
+
+        console.log(response);
         setAds(response.data.ads);
         setBooking(response.data.booking);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching places:', err);
-        setError('Failed to fetch places');
+        console.error("Error fetching places:", err);
+        setError("Failed to fetch places");
         setLoading(false);
       }
     };
 
     fetchPlaces();
-  }, [refrish , globalSearch]);
+  }, [refrish, globalSearch]);
 
   const handleEditPhone = () => {
     setPhoneModalVisible(true);
@@ -169,20 +180,19 @@ console.log('globalSearch : ' , globalSearch)
     }));
   };
 
-
   const formatDate = (dateString) => {
-  const date = new Date(dateString);
+    const date = new Date(dateString);
 
-  // Extract date and time components
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
-  const year = date.getFullYear();
+    // Extract date and time components
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
 
-  // Format as 'HH:mm dd-MM-yyyy'
-  return `${hours}:${minutes} ${day}-${month}-${year}`;
-};
+    // Format as 'HH:mm dd-MM-yyyy'
+    return `${hours}:${minutes} ${day}-${month}-${year}`;
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -196,16 +206,14 @@ console.log('globalSearch : ' , globalSearch)
             styles.languageButton,
             i18n.language === "ar" && styles.activeLanguageButton,
           ]}
-          onPress={() => i18n.changeLanguage("ar")}
-        >
+          onPress={() => i18n.changeLanguage("ar")}>
           <Text
             style={[
               styles.languageButtonText,
-              {fontFamily : "droidAr"},
+              { fontFamily: "droidAr" },
 
               i18n.language === "ar" && { color: "white" },
-            ]}
-          >
+            ]}>
             {t("arabic")}
           </Text>
         </TouchableOpacity>
@@ -214,15 +222,13 @@ console.log('globalSearch : ' , globalSearch)
             styles.languageButton,
             i18n.language === "en" && styles.activeLanguageButton,
           ]}
-          onPress={() => i18n.changeLanguage("en")}
-        >
+          onPress={() => i18n.changeLanguage("en")}>
           <Text
             style={[
               styles.languageButtonText,
-              {fontFamily : "droidAr"},
+              { fontFamily: "droidAr" },
               i18n.language === "en" && { color: "white" },
-            ]}
-          >
+            ]}>
             {t("english")}
           </Text>
         </TouchableOpacity>
@@ -235,18 +241,19 @@ console.log('globalSearch : ' , globalSearch)
             style={styles.avatar}
           />
         </TouchableOpacity>
-        <View style={{ flexDirection: "row", gap: 6 , alignSelf : "center" }}>
+        <View style={{ flexDirection: "row", gap: 6, alignSelf: "center" }}>
           {!edit && (
             <View style={styles.editRow}>
-              <Text style={{ fontFamily: "droidAr", fontSize: 22 , textAlign : "center" }}>
+              <Text
+                style={{
+                  fontFamily: "droidAr",
+                  fontSize: 22,
+                  textAlign: "center",
+                }}>
                 {firstName} {lastName}
               </Text>
               <TouchableOpacity onPress={() => setEdit(true)}>
-                <Ionicons
-                  name="create-outline"
-                  size={24}
-                  color={Colors.dark}
-                />
+                <Ionicons name="create-outline" size={24} color={Colors.dark} />
               </TouchableOpacity>
             </View>
           )}
@@ -274,27 +281,33 @@ console.log('globalSearch : ' , globalSearch)
             </View>
           )}
         </View>
-        <View style={{flexDirection:"row" , alignItems : "center",justifyContent : "center"}}>
-        <Pressable style={{padding : 3 , backgtoundColor:Colors.primary}}
-        onPress={handleEditPhone}
-        >
-        <Ionicons
-                  name="create-outline"
-                  size={20}
-                  color={Colors.dark}
-                />   
-                
-                  </Pressable>
-                  <Text style={{textAlign : "center" }}>{user.phone}</Text>
-
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+          <Pressable
+            style={{ padding: 3, backgtoundColor: Colors.primary }}
+            onPress={handleEditPhone}>
+            <Ionicons name="create-outline" size={20} color={Colors.dark} />
+          </Pressable>
+          <Text style={{ textAlign: "center" }}>{user.phone}</Text>
         </View>
-        <Text style={{ fontFamily: "droidAr" , textAlign : "center" }}>
+        <Text style={{ fontFamily: "droidAr", textAlign: "center" }}>
           {t("joined")} {formatDate(user.created)}
-        </Text> 
+        </Text>
       </View>
 
-      
-      <Text style={{fontSize : 20 , fontFamily : "droidAr" , textAlign : "center" , marginBottom : 20}}>{t("myAds")}</Text>
+      <Text
+        style={{
+          fontSize: 20,
+          fontFamily: "droidAr",
+          textAlign: "center",
+          marginBottom: 20,
+        }}>
+        {t("myAds")}
+      </Text>
 
       <View style={styles.tabsContainer}>
         <TouchableOpacity
@@ -302,35 +315,29 @@ console.log('globalSearch : ' , globalSearch)
             styles.tabButton,
             selectedTab === "booking" && styles.activeTabButton,
           ]}
-          onPress={() => setSelectedTab("booking")}
-        >
+          onPress={() => setSelectedTab("booking")}>
           <Text
             style={[
               styles.tabButtonText,
-              {fontFamily : "droidAr"}
-              ,
+              { fontFamily: "droidAr" },
               selectedTab === "booking" && { color: "white" },
-            ]}
-          >
+            ]}>
             {t("booking")}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            
+
             selectedTab === "ads" && styles.activeTabButton,
           ]}
-          onPress={() => setSelectedTab("ads")}
-        >
+          onPress={() => setSelectedTab("ads")}>
           <Text
             style={[
               styles.tabButtonText,
-              {fontFamily : "droidAr"}
-              ,
+              { fontFamily: "droidAr" },
               selectedTab === "ads" && { color: "white" },
-            ]}
-          >
+            ]}>
             {t("ads")}
           </Text>
         </TouchableOpacity>
@@ -338,21 +345,21 @@ console.log('globalSearch : ' , globalSearch)
 
       {selectedTab === "booking" && (
         <View style={styles.bookingContent}>
-          <Swiper style={styles.wrapper} >
-          {booking.map((ad) => (
-            <View key={ad.id} style={styles.slide}>
-              {renderAdItem({ item: ad , type: "ads"  })}
-            </View>
-          ))}
-        </Swiper>
+          <Swiper style={styles.wrapper}>
+            {booking.map((ad) => (
+              <View key={ad.id} style={styles.slide}>
+                {renderAdItem({ item: ad, type: "ads" })}
+              </View>
+            ))}
+          </Swiper>
         </View>
       )}
 
       {selectedTab === "ads" && (
-        <Swiper style={styles.wrapper} >
+        <Swiper style={styles.wrapper}>
           {ads.map((ad) => (
             <View key={ad.id} style={styles.slide}>
-              {renderAdItem({ item: ad , type: "ads" })}
+              {renderAdItem({ item: ad, type: "ads" })}
             </View>
           ))}
         </Swiper>
@@ -365,25 +372,33 @@ console.log('globalSearch : ' , globalSearch)
           SecureStore.deleteItemAsync("userId");
           router.replace("/login");
         }}
-        style={{backgroundColor : Colors.primary , width : "60%" , height : 40 , alignItems : "center" , justifyContent : "center" , marginBottom : 60 , borderRadius : 60 , alignSelf : "center"}}
-      >
-        <Text style={{color : "white" , fontFamily : "droidAr" , fontSize : 20}}>{t("logout")}</Text>
-        </Pressable>
+        style={{
+          backgroundColor: Colors.primary,
+          width: "60%",
+          height: 40,
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 60,
+          borderRadius: 60,
+          alignSelf: "center",
+        }}>
+        <Text style={{ color: "white", fontFamily: "droidAr", fontSize: 20 }}>
+          {t("logout")}
+        </Text>
+      </Pressable>
 
-      
-        <PhoneModal
+      <PhoneModal
         visible={phoneModalVisible}
-        onClose={async(newPhoneNumber) => {
-          if(newPhoneNumber){
-            setUser((pre)=>({...pre , phone:newPhoneNumber}) )
+        onClose={async (newPhoneNumber) => {
+          if (newPhoneNumber) {
+            setUser((pre) => ({ ...pre, phone: newPhoneNumber }));
             await SecureStore.setItemAsync("userData", user);
           }
-          setPhoneModalVisible(false)}}
+          setPhoneModalVisible(false);
+        }}
         userId={user.id}
         updateUserPhone={updateUserPhone}
       />
-
-
     </ScrollView>
   );
 };
@@ -448,8 +463,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
-    justifyContent : "center"
-
+    justifyContent: "center",
   },
   inputField: {
     borderWidth: 1,

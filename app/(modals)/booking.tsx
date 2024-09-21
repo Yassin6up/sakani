@@ -1,29 +1,43 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useState } from 'react';
-import Animated, { FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { TextInput } from 'react-native-gesture-handler';
-import { useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import { useState } from "react";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+} from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { TextInput } from "react-native-gesture-handler";
+import { useRouter } from "expo-router";
 // import DatePicker from 'react-native-modern-datepicker';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import axios from 'axios'; // Make sure you have axios installed
-import { useDispatch } from 'react-redux';
-import { defaultStyles } from '@/constants/Styles';
-import Colors from '@/constants/Colors';
-import { places } from '@/assets/data/places';
-import { setPlaces } from '@/store/slices/posts';
-import { useTranslation } from 'react-i18next';
-import { Calendar } from 'react-native-calendars';
+import MultiSlider from "@ptomasroos/react-native-multi-slider";
+import axios from "axios"; // Make sure you have axios installed
+import { useDispatch } from "react-redux";
+import { defaultStyles } from "@/constants/Styles";
+import Colors from "@/constants/Colors";
+import { places } from "@/assets/data/places";
+import { setPlaces } from "@/store/slices/posts";
+import { useTranslation } from "react-i18next";
+import { Calendar } from "react-native-calendars";
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 const Page = () => {
   const { t } = useTranslation();
   const [priceRange, setPriceRange] = useState([100, 9999]);
   const [openCard, setOpenCard] = useState(0);
   const [selectedPlace, setSelectedPlace] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substring(0, 10));
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().substring(0, 10)
+  );
   const dispatch = useDispatch();
   const router = useRouter();
   const today = new Date().toISOString().substring(0, 10);
@@ -33,15 +47,15 @@ const Page = () => {
     setOpenCard(0);
   };
 
-
   const handleDayPress = (day) => {
     // Log the raw date value received from Calendar
     console.log("Raw date from Calendar:", day.dateString);
 
     // Function to convert Arabic numerals to English numerals if necessary
     const convertToEnglishNumerals = (dateString) => {
-      return dateString.replace(/[\u0660-\u0669]/g, (c) => c.charCodeAt(0) - 0x0660)
-                       .replace(/[\u06f0-\u06f9]/g, (c) => c.charCodeAt(0) - 0x06f0);
+      return dateString
+        .replace(/[\u0660-\u0669]/g, (c) => c.charCodeAt(0) - 0x0660)
+        .replace(/[\u06f0-\u06f9]/g, (c) => c.charCodeAt(0) - 0x06f0);
     };
 
     // Apply conversion if needed
@@ -52,7 +66,6 @@ const Page = () => {
     setSelectedDate(englishDate);
   };
 
-
   const applyFilters = async () => {
     console.log("start fetching");
     console.log({
@@ -61,7 +74,7 @@ const Page = () => {
       priceRange: priceRange,
     });
     try {
-      const response = await axios.post('https://backend.sakanijo.com/filter', {
+      const response = await axios.post("https://test.sakanijo.com/filter", {
         city: places[selectedPlace]?.title,
         date: selectedDate,
         priceRange: priceRange,
@@ -70,11 +83,10 @@ const Page = () => {
       // Handle response data here
       dispatch(setPlaces(response.data));
       router.back();
-      
-      console.log('Filtered data:', response.data);
-      
+
+      console.log("Filtered data:", response.data);
     } catch (error) {
-      console.error('Error applying filters:', error.response.data.message);
+      console.error("Error applying filters:", error.response.data.message);
     }
   };
 
@@ -88,14 +100,19 @@ const Page = () => {
             style={styles.cardPreview}
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(200)}>
-            <Text style={styles.previewText}>{t('where')}</Text>
-            <Text style={styles.previewdData}>{t('cityOrArea')}</Text>
+            <Text style={styles.previewText}>{t("where")}</Text>
+            <Text style={styles.previewdData}>{t("cityOrArea")}</Text>
           </AnimatedTouchableOpacity>
         )}
 
-        {openCard === 0 && <Text style={styles.cardHeader}>{t('selectArea')}</Text>}
         {openCard === 0 && (
-          <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.cardBody}>
+          <Text style={styles.cardHeader}>{t("selectArea")}</Text>
+        )}
+        {openCard === 0 && (
+          <Animated.View
+            entering={FadeIn}
+            exiting={FadeOut}
+            style={styles.cardBody}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -104,7 +121,11 @@ const Page = () => {
                 <TouchableOpacity
                   key={index}
                   onPress={() => setSelectedPlace(index)}
-                  style={selectedPlace === index ? styles.placeSelected : styles.place}>
+                  style={
+                    selectedPlace === index
+                      ? styles.placeSelected
+                      : styles.place
+                  }>
                   <Text style={{ fontFamily: "droidAr" }}>{item.title}</Text>
                 </TouchableOpacity>
               ))}
@@ -121,38 +142,44 @@ const Page = () => {
             style={styles.cardPreview}
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(200)}>
-            <Text style={styles.previewText}>{t('recentAds')}</Text>
-            <Text style={styles.previewdData}>{t('selectDate')}</Text>
+            <Text style={styles.previewText}>{t("recentAds")}</Text>
+            <Text style={styles.previewdData}>{t("selectDate")}</Text>
           </AnimatedTouchableOpacity>
         )}
 
-        {openCard === 1 && <Text style={styles.cardHeader}>{t('selectDate')}</Text>}
         {openCard === 1 && (
-         <Animated.View style={styles.cardBody}>
-         <Calendar
-           // Initial date to display
-           current={today}
-           // Date selected
-           markedDates={{
-             [selectedDate]: { selected: true, marked: true, selectedColor: Colors.primary },
-           }}
-           // Handle day press
-           onDayPress={handleDayPress}
-           // Optional styling
-           theme={{
-             todayTextColor: Colors.primary,
-             arrowColor: Colors.primary,
-             monthTextColor: Colors.primary,
-             textDayFontWeight: 'bold',
-             textMonthFontWeight: 'bold',
-             textDayHeaderFontWeight: 'bold',
-             textDayFontSize: 16,
-             textMonthFontSize: 16,
-             textDayHeaderFontSize: 14,
-           }}
-         />
-         {/* <Text>Selected Date: {selectedDate}</Text> */}
-       </Animated.View>
+          <Text style={styles.cardHeader}>{t("selectDate")}</Text>
+        )}
+        {openCard === 1 && (
+          <Animated.View style={styles.cardBody}>
+            <Calendar
+              // Initial date to display
+              current={today}
+              // Date selected
+              markedDates={{
+                [selectedDate]: {
+                  selected: true,
+                  marked: true,
+                  selectedColor: Colors.primary,
+                },
+              }}
+              // Handle day press
+              onDayPress={handleDayPress}
+              // Optional styling
+              theme={{
+                todayTextColor: Colors.primary,
+                arrowColor: Colors.primary,
+                monthTextColor: Colors.primary,
+                textDayFontWeight: "bold",
+                textMonthFontWeight: "bold",
+                textDayHeaderFontWeight: "bold",
+                textDayFontSize: 16,
+                textMonthFontSize: 16,
+                textDayHeaderFontSize: 14,
+              }}
+            />
+            {/* <Text>Selected Date: {selectedDate}</Text> */}
+          </Animated.View>
         )}
       </View>
 
@@ -164,23 +191,29 @@ const Page = () => {
             style={styles.cardPreview}
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(200)}>
-            <Text style={styles.previewText}>{t('priceRange')}</Text>
-            <Text style={styles.previewdData}>{t('setPriceRange')}</Text>
+            <Text style={styles.previewText}>{t("priceRange")}</Text>
+            <Text style={styles.previewdData}>{t("setPriceRange")}</Text>
           </AnimatedTouchableOpacity>
         )}
 
-        {openCard === 2 && <Text style={styles.cardHeader}>{t('priceRange')}</Text>}
+        {openCard === 2 && (
+          <Text style={styles.cardHeader}>{t("priceRange")}</Text>
+        )}
         {openCard === 2 && (
           <Animated.View style={styles.cardBody}>
             <View style={styles.sliderContainer}>
               <View style={styles.priceLabels}>
-                <Text style={styles.label}>{t('minPrice', { price: priceRange[0] })}</Text>
-                <Text style={styles.label}>{t('maxPrice', { price: priceRange[1] })}</Text>
+                <Text style={styles.label}>
+                  {t("minPrice", { price: priceRange[0] })}
+                </Text>
+                <Text style={styles.label}>
+                  {t("maxPrice", { price: priceRange[1] })}
+                </Text>
               </View>
               <MultiSlider
                 values={[priceRange[0], priceRange[1]]}
                 sliderLength={280}
-                onValuesChange={values => setPriceRange(values)}
+                onValuesChange={(values) => setPriceRange(values)}
                 min={100}
                 max={9999}
                 step={1}
@@ -198,13 +231,20 @@ const Page = () => {
       </View>
 
       {/* Footer */}
-      <Animated.View style={defaultStyles.footer} entering={SlideInDown.delay(200)}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Animated.View
+        style={defaultStyles.footer}
+        entering={SlideInDown.delay(200)}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
           <TouchableOpacity onPress={onClearAll} style={styles.clearAllButton}>
-            <Text style={styles.clearAllText}>{t('clearAll')}</Text>
+            <Text style={styles.clearAllText}>{t("clearAll")}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={applyFilters} style={styles.searchButton}>
-            <Text style={styles.searchButtonText}>{t('applyFilters')}</Text>
+            <Text style={styles.searchButtonText}>{t("applyFilters")}</Text>
             <Ionicons name="search" size={24} color="white" />
           </TouchableOpacity>
         </View>
@@ -219,11 +259,11 @@ const styles = StyleSheet.create({
     paddingTop: 100,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 14,
     margin: 10,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowRadius: 4,
     shadowOffset: {
@@ -233,7 +273,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   cardHeader: {
-    fontFamily: 'droidAr',
+    fontFamily: "droidAr",
     fontSize: 24,
     padding: 20,
   },
@@ -242,12 +282,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   cardPreview: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 20,
   },
   placesContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 25,
   },
   place: {
@@ -255,8 +295,8 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 10,
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: "center"
+    justifyContent: "center",
+    alignItems: "center",
   },
   placeSelected: {
     borderColor: Colors.grey,
@@ -265,43 +305,43 @@ const styles = StyleSheet.create({
 
     width: 100,
     height: 100,
-    justifyContent: 'center',
-    alignItems: "center"
+    justifyContent: "center",
+    alignItems: "center",
   },
   previewText: {
-    fontFamily: 'droidAr',
+    fontFamily: "droidAr",
     fontSize: 14,
     color: Colors.grey,
   },
   previewdData: {
-    fontFamily: 'droidAr',
+    fontFamily: "droidAr",
     fontSize: 14,
     color: Colors.dark,
   },
   sliderContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   priceLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     marginBottom: 10,
   },
   label: {
     fontSize: 16,
     fontWeight: 500,
-    color: '#333',
+    color: "#333",
   },
   selectedTrack: {
-    backgroundColor: '#ff5a5f',
+    backgroundColor: "#ff5a5f",
   },
   unselectedTrack: {
-    backgroundColor: '#d3d3d3',
+    backgroundColor: "#d3d3d3",
   },
   marker: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderWidth: 2,
-    borderColor: '#ff5a5f',
+    borderColor: "#ff5a5f",
   },
   sliderContainerStyle: {
     marginVertical: 10,
@@ -315,26 +355,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   clearAllText: {
-    fontFamily: 'droidAr',
+    fontFamily: "droidAr",
     fontSize: 16,
     color: Colors.dark,
   },
   searchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     backgroundColor: Colors.primary,
     borderRadius: 8,
   },
   searchButtonText: {
-    fontFamily: 'droidAr',
+    fontFamily: "droidAr",
     fontSize: 16,
-    color: 'white',
+    color: "white",
     marginRight: 10,
   },
   footer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });
 

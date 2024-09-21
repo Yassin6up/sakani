@@ -1,7 +1,7 @@
 import React , {useState} from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput , Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentHomeStage , setTripLong , setTotalStages , setEvacuation  , setContainSdah , setDeepPool, setTypePool , setSpaceGeneral ,incrementRoomsNumber, decrementRoomsNumber, setHomeType , setFarmHasHouse , setFarmHasFarmed  , setFarmHasWater , setLandInFaceOfStreet , setNumberOfStreetsInLand } from '@/store/slices/publish'; // Import actions
+import { setCurrentHomeStage , setTripLong , setTotalStages , setEvacuation  , setContainSdah , setDeepPool, setTypePool , setSpaceGeneral ,incrementRoomsNumber, decrementRoomsNumber, setHomeType , setFarmHasHouse , setFarmHasFarmed  , setFarmHasWater , setLandInFaceOfStreet , setNumberOfStreetsInLand, setMeetingRoomType, setCountPeople, setSubsGym } from '@/store/slices/publish'; // Import actions
 import Colors from '@/constants/Colors';
 import FeaturesSheet from './FeaturesSheet';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ const Step3 = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>{t("step3Title")}</Text>
+            <Text style={styles.title}>{t("step3Title")} {data.homeType}</Text>
             <Text style={styles.subTitle}>{t("stepSubTitle")} {data.homeType}</Text>
 
                 {data.homeType == "فيلا / منزل" || data.homeType == "شقة"  ? <>
@@ -121,14 +121,14 @@ const Step3 = () => {
 
 {
     data.homeType == "تنضيم رحلات"  ? null :  (    <View style={styles.boxInput}>
-    <Text style={styles.sectionTitle}>{t("realEstateSpace")}<Text style={styles.required}>*</Text>
+    <Text style={styles.sectionTitle}>{t(data.homeType)}<Text style={styles.required}>*</Text>
 </Text>
     <TextInput keyboardType='numeric' defaultValue={data.spaceGeneral} placeholder='2م' style={styles.input} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setSpaceGeneral(text))}}/>
 </View>)
 }
 
 
-            { data.homeType == "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو'   || data.homeType == "قاعات اجتماعات" ? <>
+            { data.homeType == "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'استوديو'  ? <>
             <View style={styles.boxInput}>
                     <Text style={styles.sectionTitle}> {t("numberOfStages")} <Text style={styles.required}>*</Text>
             </Text>
@@ -142,6 +142,44 @@ const Step3 = () => {
             </View>
             </>
   : null}
+
+
+  {
+      data.homeType == "قاعات اجتماعات"  ?
+
+      <>
+       <View style={styles.boxInput}>
+            <Text style={styles.sectionTitle}>{t("countPeople")}</Text>
+            <TextInput keyboardType='numeric' defaultValue={data.countPeople} style={styles.input} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setCountPeople(text))}}/>
+        </View>
+     
+      <View style={styles.boxInput}>
+      <Text style={styles.sectionTitle}> {t("meetingRoomType")} <Text style={styles.required}>*</Text>
+    </Text>
+    <View style={styles.slectionBoxes}>
+
+            <Pressable style={[styles.boxSelection , data.meetingRoomType === "غرفة على شكل U" && styles.selectedBox]}  onPress={() => dispatch(setMeetingRoomType("غرفة على شكل U"))}>
+                <Text style={styles.text}>{t("Uroom")}</Text>
+            </Pressable>
+
+            <Pressable style={[styles.boxSelection , data.meetingRoomType === "مسرح" && styles.selectedBox]}  onPress={() =>  dispatch(setMeetingRoomType("مسرح"))}>
+                <Text style={styles.text}>{t("stagem")}</Text>
+            </Pressable>
+            <Pressable style={[styles.boxSelection , data.meetingRoomType === "قاعة درس" && styles.selectedBox]}  onPress={() =>  dispatch(setMeetingRoomType("قاعات درس"))}>
+                <Text style={styles.text}>{t("classRooms")}</Text>
+            </Pressable>
+            <Pressable style={[styles.boxSelection , data.meetingRoomType === "مكان للعمل الجماعي" && styles.selectedBox]}  onPress={() =>  dispatch(setMeetingRoomType("مكان للعمل الجماعي"))}>
+                <Text style={styles.text}>{t("teamWork")}</Text>
+            </Pressable>
+            <Pressable style={[styles.boxSelection , data.meetingRoomType === "بيانات" && styles.selectedBox]}  onPress={() =>  dispatch(setMeetingRoomType("بيانات"))}>
+                <Text style={styles.text}>{t("dataRoom")}</Text>
+            </Pressable>
+        </View>
+    </View>
+    </>
+      :
+      null
+  }
 
   
 { data.homeType == 'محلات ومخازن'? <>
@@ -236,6 +274,8 @@ const Step3 = () => {
                             <Text style={styles.text}>{t("3month")}</Text>
                         </Pressable>
                     </View>
+
+
                     </>
                 :null}
 
@@ -244,14 +284,28 @@ const Step3 = () => {
 
 { data.homeType == 'صالات رياضة'  ?
    <>
-                    <Text style={styles.sectionTitle}> {t("نوع الصالة")}</Text>
+                    <Text style={styles.sectionTitle}> {t("gymType")}</Text>
                     <View style={styles.slectionBoxes}>
                         <Pressable style={[styles.boxSelection , data.poolType === 'رجالي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("رجالي"))}>
-                            <Text style={styles.text}>{t("رجالي")}</Text>
+                            <Text style={styles.text}>{t("men")}</Text>
                         </Pressable>
                         
                         <Pressable style={[styles.boxSelection , data.poolType === 'نسائي' && styles.selectedBox]}  onPress={() => dispatch(setTypePool("نسائي"))}>
-                            <Text style={styles.text}>{t("نسائي")}</Text>
+                            <Text style={styles.text}>{t("women")}</Text>
+                        </Pressable>
+                    </View>
+
+                    <Text style={styles.sectionTitle}> {t("abonmonet")}</Text>
+                    <View style={styles.slectionBoxes}>
+                        <Pressable style={[styles.boxSelection , data.subscriptionTypeGym === 'شهر' && styles.selectedBox]}  onPress={() => dispatch(setSubsGym('شهر'))}>
+                            <Text style={styles.text}>{t("month")}</Text>
+                        </Pressable>
+                        
+                        <Pressable style={[styles.boxSelection , data.subscriptionTypeGym === 'ثلاثة أشهر' && styles.selectedBox]}  onPress={() => dispatch(setSubsGym("ثلاثة أشهر"))}>
+                            <Text style={styles.text}>{t("3month")}</Text>
+                        </Pressable>
+                        <Pressable style={[styles.boxSelection , data.subscriptionTypeGym === 'سنة' && styles.selectedBox]}  onPress={() => dispatch(setSubsGym("سنة"))}>
+                            <Text style={styles.text}>{t("year")}</Text>
                         </Pressable>
                     </View>
                     </>
@@ -383,9 +437,7 @@ const styles = StyleSheet.create({
         gap: 10,
         
     },
-    required : {
-        color : "red" , 
-    },
+    
     slectionBoxes : {
         width : "100%" , 
         height : 100 ,
@@ -394,6 +446,18 @@ const styles = StyleSheet.create({
         display : "flex",
         flexDirection : "row",
         justifyContent: "flex-end" ,
+        alignItems : "center"
+    },
+    boxSelection : {
+        paddingLeft : 20 , 
+        paddingRight : 20 , 
+        height : 50 , 
+        borderWidth: 1,
+        borderColor: '#dddddd',
+        borderStyle: 'solid',
+        borderRadius: 8,
+        display : "flex",
+        justifyContent: "center" ,
         alignItems : "center"
     },
     box: {
@@ -409,21 +473,13 @@ const styles = StyleSheet.create({
         gap: 10,
         alignItems: 'center',
     },
+    required : {
+        color : "red" , 
+    },
     text: {
         fontFamily: 'droidAr',
     },
-    boxSelection : {
-        paddingLeft : 20 , 
-        paddingRight : 20 , 
-        height : 50 , 
-        borderWidth: 1,
-        borderColor: '#dddddd',
-        borderStyle: 'solid',
-        borderRadius: 8,
-        display : "flex",
-        justifyContent: "center" ,
-        alignItems : "center"
-    },
+    
     btnAndicator: {
         width: 35,
         height: 35,

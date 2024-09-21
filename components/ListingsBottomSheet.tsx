@@ -5,28 +5,34 @@ import Listings from '@/components/Listings';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+
 interface Props {
   listings: any[];
   category: string;
 }
-import { useSelector } from 'react-redux';
 
 // Bottom sheet that wraps our Listings component
 const ListingsBottomSheet = ({ listings, category }: Props) => {
   const snapPoints = useMemo(() => ['10%', '75%'], []);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [refresh, setRefresh] = useState<number>(0);
-  const isFilter = useSelector((state)=> state.places.value.isFilter)
+  const isFilter = useSelector((state) => state.places.value.isFilter);
 
   const onShowMap = () => {
     bottomSheetRef.current?.collapse();
     setRefresh(refresh + 1);
   };
-  useEffect(()=>{
-if(isFilter){
-  bottomSheetRef.current?.collapse();
-}
-  },[isFilter])
+
+  useEffect(() => {
+    if (isFilter) {
+      bottomSheetRef.current?.collapse();
+
+    } else {
+      bottomSheetRef.current?.expand();
+
+    }
+  }, [isFilter]);
 
   const { t } = useTranslation();
 
@@ -76,7 +82,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    
     shadowOffset: {
       width: 1,
       height: 1,

@@ -48,17 +48,45 @@ let initialState ={
     timeOpen : {
       start : null ,
       end : null
-    }
+    },
+    poolDocument : null , 
+    chaletDocument : null  ,
+    meetingRoomType : "مكان للعمل الجماعي"  ,
+    countPeople : 3 ,
+    subscriptionTypeGym : "شهر" , 
+    priceBeforeNoon : "" , 
+    priceAfterNoon : "" ,
   
   }
 }
 
 const publishData = createSlice({
   name: 'publish',
-  initialState ,
+  initialState , 
   reducers: {
+    setPriceBeforeNoon : (state, action)=>{
+      state.value.priceBeforeNoon = action.payload;
+    },
+    setPriceAfterNoon : (state, action)=>{
+      state.value.priceAfterNoon = action.payload;
+    },
+    setCountPeople : (state, action)=>{
+      state.value.countPeople = action.payload;
+    },
+    setSubsGym : (state, action)=>{
+      state.value.subscriptionTypeGym = action.payload;
+    },
     setTimeStart : (state, action)=>{
       state.value.timeOpen.start = action.payload;
+    },
+    setMeetingRoomType : (state, action)=>{
+      state.value.meetingRoomType = action.payload;
+    },
+    setPoolDocs : (state, action)=>{
+      state.value.poolDocument = action.payload;
+    },
+    setChaletDocs : (state, action)=>{
+      state.value.chaletDocument = action.payload;
     },
     setTimeEnd : (state, action)=>{
       state.value.timeOpen.end = action.payload;
@@ -253,7 +281,14 @@ export const {
   setTripLong ,
   setTriDate ,
   setTimeEnd ,
-  setTimeStart
+  setTimeStart ,
+  setChaletDocs , 
+  setPoolDocs ,
+  setMeetingRoomType ,
+  setCountPeople ,
+  setSubsGym ,
+  setPriceAfterNoon , 
+  setPriceBeforeNoon
 
 
 

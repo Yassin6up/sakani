@@ -8,7 +8,7 @@ import {
   Dimensions,
   Modal,
   Linking,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import Step1 from "../../components/Publish/Step1";
@@ -21,10 +21,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import Colors from "@/constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import { setResetAll } from "@/store/slices/publish";
-import LottieView from 'lottie-react-native';
+import LottieView from "lottie-react-native";
 import SuccessModal from "@/components/AddedPlaceModal";
 import { router } from "expo-router";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
 import { setGlobalFilter } from "@/store/slices/posts";
 const Page = () => {
@@ -40,12 +40,15 @@ const Page = () => {
   const data = useSelector((state) => state.publishData.value);
   const dispatch = useDispatch();
 
-  const { height } = Dimensions.get('window');
+  const { height } = Dimensions.get("window");
 
   const handleNext = () => {
     if (currentStep === 3) {
-      if (data.homeType === "شقة" || data.homeType == 'مكاتب وعيادات'  || data.homeType == 'شليهات' || data.homeType == 'استوديو' 
-        ) {
+      if (
+        data.homeType === "شقة" ||
+        data.homeType == "مكاتب وعيادات" ||
+        data.homeType == "استوديو"
+      ) {
         if (
           !data.numberOfHomeStage ||
           !data.totalStages ||
@@ -55,7 +58,7 @@ const Page = () => {
         } else {
           setCurrentStep(currentStep + 1);
         }
-      } else if (data.homeType == "فيلا / منزل") {
+      } else if (data.homeType == "فيلا / منزل" || data.homeType == "شليهات") {
         if (!data.spaceGeneral) {
           Alert.alert("يرجى تعبئة بيانات المنزل");
         } else {
@@ -78,17 +81,21 @@ const Page = () => {
         } else {
           setCurrentStep(currentStep + 1);
         }
-      }else if(data.homeType === "مسابح" ||data.homeType === 'صالات رياضة'  ||data.homeType == "قاعات اجتماعات"   ||data.homeType == "ملاعب"  || data.homeType == 'محلات ومخازن'   || data.homeType == 'مخيمات و اكواخ' 
-        
-      ){
-        if(!data.spaceGeneral){
-          Alert.alert("يرجى تعبئة بيانات")
-        }else{
+      } else if (
+        data.homeType === "مسابح" ||
+        data.homeType === "صالات رياضة" ||
+        data.homeType == "قاعات اجتماعات" ||
+        data.homeType == "ملاعب" ||
+        data.homeType == "محلات ومخازن" ||
+        data.homeType == "مخيمات و اكواخ"
+      ) {
+        if (!data.spaceGeneral) {
+          Alert.alert("يرجى تعبئة بيانات");
+        } else {
           setCurrentStep(currentStep + 1);
         }
-      }else if( data.homeType ===  "تنضيم رحلات" ){
+      } else if (data.homeType === "تنضيم رحلات") {
         setCurrentStep(currentStep + 1);
-
       }
 
       if (data.amenities.length === 0) {
@@ -101,14 +108,29 @@ const Page = () => {
         setCurrentStep(currentStep + 1);
       }
     } else if (currentStep === 5) {
-      if (!data.title || !data.description || !data.price || data.price  == "0") {
+      if (
+        !data.title ||
+        !data.description ||
+        !data.price ||
+        data.price == "0"
+      ) {
         Alert.alert("يرجى تعبئة العنوان والوصف أو السعر");
       } else {
         if (data.homeType == "فيلا / منزل" || data.homeType == "شقة") {
           if (!data.buyOrRent) {
             Alert.alert("يرجى تعبئة نوع الشراء");
           } else {
-            setCurrentStep(currentStep + 1);
+            if (data.homeType == "مسابح") {
+              if (!data.poolDocument) {
+                Alert.alert("يرجى إضافة المستندات");
+              }
+            } else if (data.homeType == "شليهات") {
+              if (!data.chaletDocument) {
+                Alert.alert("يرجى إضافة المستندات");
+              }
+            } else {
+              setCurrentStep(currentStep + 1);
+            }
           }
         }
       }
@@ -164,7 +186,11 @@ const Page = () => {
 
     // Append non-image data
     for (const key in data) {
-      if (key !== "images") {
+      if (
+        key !== "images" &&
+        key !== "poolDocument" &&
+        key !== "chaletDocument"
+      ) {
         if (typeof data[key] === "object" && data[key] !== null) {
           formData.append(key, JSON.stringify(data[key]));
         } else {
@@ -173,6 +199,7 @@ const Page = () => {
       }
     }
 
+    // Append images array
     for (let i = 0; i < data.images.length; i++) {
       const image = data.images[i];
       const file = {
@@ -183,9 +210,31 @@ const Page = () => {
       formData.append(`images`, file);
     }
 
+    // Append chaletDocument
+    if (data.chaletDocument) {
+      const chaletFile = {
+        uri: data.chaletDocument.uri,
+        type: data.chaletDocument.mimeType,
+        name: data.chaletDocument.fileName,
+      };
+      formData.append("chaletDocument", chaletFile);
+    }
+
+    // Append poolDocument
+    if (data.poolDocument) {
+      console.log("pool Doculment", data.poolDocument);
+      const poolFile = {
+        uri: data.poolDocument.uri,
+        type: data.poolDocument.mimeType,
+        name: data.poolDocument.fileName,
+      };
+      formData.append("poolDocument", poolFile);
+    }
+
+    console.log("start inserting ");
     try {
       const response = await axios.post(
-        "https://backend.sakanijo.com/api/places/add",
+        "https://test.sakanijo.com/api/places/add",
         formData,
         {
           headers: {
@@ -194,7 +243,7 @@ const Page = () => {
         }
       );
 
-      dispatch(setGlobalFilter())
+      dispatch(setGlobalFilter());
       setLoading(false);
       setCorrectAdd(true);
       setModalVisible1(true);
@@ -205,18 +254,18 @@ const Page = () => {
       setLoading(false);
       setCorrectAdd(false);
       setIsSubmitting(false);
-      console.error("Error sending data:", error.response.data.error);
+      console.error("Error sending data:", error);
     }
   };
 
   const openTermsAndPolicy = () => {
-    Linking.openURL('https://your-terms-and-policy-link.com');
+    Linking.openURL("https://sakanijo.com/policy");
   };
 
   return (
     <>
       <ScrollView style={styles.container}>
-        {currentStep === 1 && <Step1 switchStep={handleNext}  />}
+        {currentStep === 1 && <Step1 switchStep={handleNext} />}
         {currentStep === 2 && <Step2 />}
         {currentStep === 3 && <Step3 />}
         {currentStep === 4 && <Step4 />}
@@ -231,18 +280,19 @@ const Page = () => {
         )}
 
         <View style={styles.lineProgress}>
-          <Text style={{ fontSize: 16, fontWeight: 700, color: Colors.primary }}>
+          <Text
+            style={{ fontSize: 16, fontWeight: 700, color: Colors.primary }}>
             {" "}
             {currentStep} / {totalSteps}{" "}
           </Text>
         </View>
 
         {currentStep < totalSteps ? (
-
           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-            <Text style={{ fontFamily: "droidAr" , color:"white" }}>{t("next")}</Text>
+            <Text style={{ fontFamily: "droidAr", color: "white" }}>
+              {t("next")}
+            </Text>
           </TouchableOpacity>
-
         ) : (
           <TouchableOpacity
             style={{
@@ -252,7 +302,15 @@ const Page = () => {
               width: 100,
               borderRadius: 8,
             }}
-            onPress={() => setModalVisible(true)}>
+            onPress={() => {
+              if (!data.title || !data.description || !data.price) {
+                Alert.alert("يرجى تعبئة العنوان والوصف أو السعر");
+                setIsSubmitting(false);
+                return;
+              }
+
+              setModalVisible(true);
+            }}>
             <Text style={{ fontFamily: "droidAr", color: "white" }}>
               {loading ? (
                 <ActivityIndicator size="small" color="white" />
@@ -268,7 +326,7 @@ const Page = () => {
         <>
           <SuccessModal onClose={toggleModal} isVisible={isModalVisible1} />
           <LottieView
-            source={require('@/assets/placeAdded.json')}
+            source={require("@/assets/placeAdded.json")}
             autoPlay
             loop
             style={{
@@ -292,9 +350,12 @@ const Page = () => {
               بالضغط على "إرسال"، فإنك توافق على جميع{" "}
               <Text style={styles.linkText} onPress={openTermsAndPolicy}>
                 الشروط والسياسات
-              </Text>.
+              </Text>
+              .
             </Text>
-            <TouchableOpacity style={styles.submitButton} onPress={handlePublish}>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handlePublish}>
               {isSubmitting ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (

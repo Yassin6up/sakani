@@ -4,31 +4,25 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
-
 const VerificationModal = ({ visible, onClose, onSubmit }) => {
-  const [code, setCode] = useState(['', '', '', '']);
-const {t} = useTranslation()
-  const handleInputChange = (text, index) => {
-    const newCode = [...code];
-    newCode[index] = text;
-    setCode(newCode);
-    if (text && index < 3) {
-      // Move to next input
-      inputRefs[index + 1].focus();
+  const [code, setCode] = useState('');
+  const { t } = useTranslation();
+
+  const handleInputChange = (text) => {
+    // Limit the input to 4 digits
+    if (/^\d{0,4}$/.test(text)) {
+      setCode(text);
     }
   };
 
   const handleSubmit = () => {
-    const verificationCode = code.join('');
-    if (verificationCode.length === 4) {
+    if (code.length === 4) {
       // Send verification code to the backend
-      onSubmit(verificationCode);
+      onSubmit(code);
     } else {
       Alert.alert('Error', 'Please enter a valid 4-digit code.');
     }
   };
-
-  let inputRefs = [];
 
   return (
     <Modal visible={visible} transparent={true} animationType="slide">
@@ -41,19 +35,13 @@ const {t} = useTranslation()
             </TouchableOpacity>
           </View>
           <Text style={styles.instruction}>{t('Enter the 4-digit code sent to your phone')}</Text>
-          <View style={styles.inputContainer}>
-            {code.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={(ref) => inputRefs[index] = ref}
-                style={styles.input}
-                maxLength={1}
-                keyboardType="numeric"
-                value={digit}
-                onChangeText={(text) => handleInputChange(text, index)}
-              />
-            ))}
-          </View>
+          <TextInput
+            style={styles.singleInput}
+            maxLength={4}
+            keyboardType="numeric"
+            value={code}
+            onChangeText={handleInputChange}
+          />
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>{t('Submit')}</Text>
           </TouchableOpacity>
@@ -61,7 +49,6 @@ const {t} = useTranslation()
       </View>
     </Modal>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -88,29 +75,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    fontFamily : "droidAr"
+    fontFamily: 'droidAr',
   },
   instruction: {
     fontSize: 16,
     color: '#555',
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily : "droidAr"
+    fontFamily: 'droidAr',
   },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    gap : 10
-  },
-  input: {
+  singleInput: {
     borderBottomWidth: 2,
     borderColor: '#ddd',
-    width: 40,
+    width: '50%',
     height: 40,
     textAlign: 'center',
     fontSize: 18,
     color: '#333',
+    marginBottom: 20,
   },
   submitButton: {
     backgroundColor: Colors.primary,
@@ -121,8 +103,9 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily : "droidAr"
+    fontFamily: 'droidAr',
   },
 });
 
 export default VerificationModal;
+  

@@ -108,7 +108,7 @@ const Step2 = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('step2Title')}</Text>
+      <Text style={styles.title}>{t('step2Title')}  {data.homeType}</Text>
       <Text style={styles.subTitle}>{t('stepSubTitle')} - {data.homeType}</Text>
       <Text style={{fontSize : 16 , fontFamily : "droidAr"  , textAlign  :"center" , marginTop : 40}}> يمكنك تحريك الايقونة للحصول على المكان بدقة</Text>
       <View style={styles.boxesContainer}>

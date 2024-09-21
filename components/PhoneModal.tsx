@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Modal, StyleSheet, Alert, Pressable, ActivityIndicator , Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Modal,
+  StyleSheet,
+  Alert,
+  Pressable,
+  ActivityIndicator,
+  Image,
+} from "react-native";
 import Colors from "@/constants/Colors";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -24,7 +34,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
   }, [visible]);
 
   function formatPhoneNumber(phoneNumber) {
-    const jordanCountryCode = '+962';
+    const jordanCountryCode = "+962";
     if (!phoneNumber.startsWith(jordanCountryCode)) {
       phoneNumber = jordanCountryCode + phoneNumber;
     }
@@ -33,7 +43,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
   const handlePhoneSubmit = async () => {
     if (code !== verificationCode) {
-      Alert.alert(t('Error'), t('Invalid code'));
+      Alert.alert(t("Error"), t("Invalid code"));
       return;
     }
 
@@ -41,7 +51,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
     try {
       const response = await axios.post(
-        `https://backend.sakanijo.com/user/update-phone`,
+        `https://test.sakanijo.com/user/update-phone`,
         {
           phone: formatPhoneNumber(newPhoneNumber),
           id: userId,
@@ -50,28 +60,30 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
       if (response.status === 200) {
         console.log(response.data);
-        setCode("")
-        Alert.alert(t('Success'), t('Phone number updated successfully'));
+        setCode("");
+        Alert.alert(t("Success"), t("Phone number updated successfully"));
         onClose(newPhoneNumber); // Close the modal after success
       }
     } catch (error) {
       console.error("Error updating phone number", error);
-      Alert.alert(t('Error'), t('Failed to update phone number. Please try again.'));
+      Alert.alert(
+        t("Error"),
+        t("Failed to update phone number. Please try again.")
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerificationSubmit = async () => {
-
-    if(!newPhoneNumber){
-      return ;
+    if (!newPhoneNumber) {
+      return;
     }
     setLoading(true);
 
     try {
       const response = await axios.post(
-        `https://backend.sakanijo.com/user/phone-verification`,
+        `https://test.sakanijo.com/user/phone-verification`,
         {
           phone: formatPhoneNumber(newPhoneNumber),
           id: userId,
@@ -83,11 +95,11 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
         setIsVerifying(true);
         setResendEnabled(false);
         setVerificationCode(response.data.code);
-        setTimeout(() => setResendEnabled(true), 25000); 
+        setTimeout(() => setResendEnabled(true), 25000);
       }
     } catch (error) {
       console.error("Error verifying phone number", error);
-      Alert.alert(t('Error'), t('Verification failed. Please try again.'));
+      Alert.alert(t("Error"), t("Verification failed. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -95,19 +107,21 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-     
       <View style={styles.modalContainer}>
-      <Pressable style={{position : "absolute" , top : 60 , left : 50}}
-      onPress={()=>{onClose()}}
-      >
-        <MaterialIcons  name="arrow-back-ios" size={25}/>
+        <Pressable
+          style={{ position: "absolute", top: 60, left: 50 }}
+          onPress={() => {
+            onClose();
+          }}>
+          <MaterialIcons name="arrow-back-ios" size={25} />
         </Pressable>
         <View style={styles.modalContent}>
-
           {/* <Image  /> */}
           {!isVerifying ? (
             <>
-              <Text style={styles.modalTitle}>{t("Enter new phone number")}</Text>
+              <Text style={styles.modalTitle}>
+                {t("Enter new phone number")}
+              </Text>
               <TextInput
                 style={styles.phoneInput}
                 value={newPhoneNumber}
@@ -118,8 +132,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
               <Pressable
                 style={[styles.button, loading && styles.disabledButton]}
                 onPress={handleVerificationSubmit}
-                disabled={loading}
-              >
+                disabled={loading}>
                 {loading ? (
                   <ActivityIndicator color={Colors.white} />
                 ) : (
@@ -129,7 +142,9 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
             </>
           ) : (
             <>
-              <Text style={styles.modalTitle}>{t("Enter verification code")}</Text>
+              <Text style={styles.modalTitle}>
+                {t("Enter verification code")}
+              </Text>
               <TextInput
                 style={styles.phoneInput}
                 value={code}
@@ -140,8 +155,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
               <Pressable
                 style={[styles.button, loading && styles.disabledButton]}
                 onPress={handlePhoneSubmit}
-                disabled={loading}
-              >
+                disabled={loading}>
                 {loading ? (
                   <ActivityIndicator color={Colors.white} />
                 ) : (

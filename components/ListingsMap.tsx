@@ -7,6 +7,9 @@ import Colors from "@/constants/Colors";
 import * as Location from "expo-location";
 import { defaultStyles } from "@/constants/Styles";
 import { useSelector } from "react-redux";
+import { CheckBox } from 'react-native-elements';
+import * as SecureStore from 'expo-secure-store';
+
 interface Props {
   listings: any;
 }
@@ -28,14 +31,18 @@ const ListingsMap = memo(({ listings }: Props) => {
   const mapRef = useRef<any>(null);
   const [userLocation, setUserLocation] = useState<any>(null);
   const filter = useSelector((state) => state.places.value.isFilter);
-  const mapData = useSelector((state) => state.places.value.map);
+  // const mapData = useSelector((state) => state.places.value.map);
 
+  console.log("listing : " , listings)
   useEffect(() => {
     // Automatically locate user on first render if no filter is applied
     if (!filter) {
       onLocateMe();
+    }else{
+      
+
     }
-  }, []);
+  }, [filter]);
 
   const onMarkerSelected = (event: any) => {
     console.log(event.id);
@@ -65,36 +72,43 @@ const ListingsMap = memo(({ listings }: Props) => {
     mapRef.current?.animateToRegion(region);
   };
 
-  // const onRegionChange = (region: any) => {
-  //   const { northEast, southWest } = JORDAN_BOUNDS;
-  //   const { latitude, longitude } = region;
+  const onRegionChange = (region: any) => {
+    const { northEast, southWest } = JORDAN_BOUNDS;
+    const { latitude, longitude } = region;
 
-  //   if (
-  //     latitude < southWest.latitude ||
-  //     latitude > northEast.latitude ||
-  //     longitude < southWest.longitude ||
-  //     longitude > northEast.longitude
-  //   ) {
-  //     mapRef.current?.animateToRegion(INITIAL_REGION);
-  //   }
-  // };
+    if (
+      latitude < southWest.latitude ||
+      latitude > northEast.latitude ||
+      longitude < southWest.longitude ||
+      longitude > northEast.longitude
+    ) {
+      mapRef.current?.animateToRegion(INITIAL_REGION);
+    }
+  };
 
   useEffect(() => {
     // Listen to changes in the filter and animate the map region accordingly
-    if (filter) {
-      console.log("Filter applied, changing region to:", mapData);
-      animateToLocation(mapData.lat, mapData.long);
-    } else {
-      console.log(
-        "Filter removed, resetting region to user's location or initial region."
-      );
-      if (userLocation) {
-        animateToLocation(userLocation.latitude, userLocation.longitude);
+    const controlMap = async ()=>{
+      if (filter) {
+        let data  = await SecureStore.getItemAsync('mapData');
+        const mapData = JSON.parse(data)
+        console.log("mapData :" , mapData )
+        console.log("Filter applied, changing region to:", mapData);
+        animateToLocation(mapData.lat, mapData.long);
       } else {
-        mapRef.current?.animateToRegion(INITIAL_REGION);
+        console.log(
+          "Filter removed, resetting region to user's location or initial region."
+        );
+        if (userLocation) {
+          animateToLocation(userLocation.latitude, userLocation.longitude);
+        } else {
+          mapRef.current?.animateToRegion(INITIAL_REGION);
+        }
       }
     }
-  }, [filter, mapData, userLocation]);
+    controlMap()
+  
+  }, [filter, userLocation]);
 
   return (
     <View style={defaultStyles.container}>
@@ -106,7 +120,7 @@ const ListingsMap = memo(({ listings }: Props) => {
         zoomEnabled={true}
         pitchEnabled={false}
         rotateEnabled={false}
-        // provider={PROVIDER_GOOGLE}
+        provider={PROVIDER_GOOGLE}
       >
         {listings?.map((item) => {
           if (!item?.lat || !item?.lng) {

@@ -10,6 +10,7 @@ import {
 import { Calendar } from "react-native-calendars";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from 'react-i18next';
+import moment from 'moment';
 
 const ReservationModal = ({
   visible,
@@ -21,7 +22,8 @@ const ReservationModal = ({
   ismultiSelect,
   priceforSpecificDays,
   acceptNight,
-  notAllowedDays
+  notAllowedDays ,
+  myAd
 }) => {
   const [step, setStep] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -32,6 +34,11 @@ const ReservationModal = ({
   const [endDate, setEndDate] = useState(null);
   const weekDaysPrices = weekDaysObject;
   const { t, i18n } = useTranslation();
+  moment.locale('en');
+
+const today = moment().format('YYYY-MM-DD'); // Get today's date in Western numerals
+
+console.log("today :",today)
 
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
@@ -120,15 +127,29 @@ const ReservationModal = ({
   const getPrice = (dateString) => {
     const dayOfWeek = new Date(dateString).toLocaleDateString(i18n.language, {
       weekday: "long",
+
     });
-    if (specifiedDates && specifiedDates.includes(dateString)) {
-      return priceforSpecificDays;
-    } else if (weekDaysPrices[dayOfWeek]) {
-      return parseInt(weekDaysPrices[dayOfWeek], 10);
+
+    let objectDays = JSON.parse(specifiedDates)
+
+    if (objectDays && objectDays[dateString]) {
+      console.log(dateString)
+      console.log(objectDays[dateString])
+      return objectDays[dateString];
     } else {
-      return priceNormal;
+      if(selectedOption === "Day Only"){
+        return myAd.priceBeforeNoon
+      }else if(selectedOption ===  "Night Only"){
+        return myAd.priceAfterNoon
+      }else if(selectedOption === "24 Hours"){
+        if (weekDaysPrices[dayOfWeek]) {
+          return parseInt(weekDaysPrices[dayOfWeek], 10);
+        }
+        return priceNormal
+      }
     }
   };
+
 
   const getDatesInRange = (start, end) => {
     const startDate = new Date(start);
@@ -193,21 +214,28 @@ const ReservationModal = ({
   const renderStep2 = () => (
     <>
       <ScrollView style={styles.calendarContainer}>
-        <Calendar
-          onDayPress={handleDayPress}
-          markedDates={{
-            ...selectedDates,
-            ...notAllowedDays.reduce((acc, date) => {
-              acc[date] = { disabled: true, disableTouchEvent: true };
-              return acc;
-            }, {}),
-          }}
-          theme={{
-            todayTextColor: "#FF5A5F",
-            selectedDayBackgroundColor: "#FF5A5F",
-            arrowColor: "#FF5A5F",
-          }}
-        />
+      <Calendar
+        onDayPress={handleDayPress}
+        markedDates={{
+          ...selectedDates,
+          ...notAllowedDays.reduce((acc, date) => {
+            acc[date] = { disabled: true, disableTouchEvent: true };
+            return acc;
+          }, {}),
+          ...Object.keys(selectedDates).reduce((acc, date) => {
+            if (date < today) {
+              acc[date] = { disabled: true, disableTouchEvent: true }; // Disable past dates
+            }
+            return acc;
+          }, {})
+        }}
+        minDate={today} // Prevent selecting previous dates
+        theme={{
+          todayTextColor: "#FF5A5F",
+          selectedDayBackgroundColor: "#FF5A5F",
+          arrowColor: "#FF5A5F",
+        }}
+      />
       </ScrollView>
       <ScrollView style={styles.detailsContainer}>
         {renderSelectedDates()}
@@ -252,6 +280,7 @@ const ReservationModal = ({
                 onSubmit({
                   totalPrice,
                   dateSelected: Object.keys(priceDetails),
+                  period : selectedOption
                 });
                 setSelectedDates({});
                 setPriceDetails({});

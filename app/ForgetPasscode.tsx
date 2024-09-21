@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
-import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import Colors from '@/constants/Colors';
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import axios from "axios";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import Colors from "@/constants/Colors";
 
 const ForgetPasscode = () => {
   const [step, setStep] = useState(1); // 1: Phone Number, 2: Verification Code, 3: New Password
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [receivedCode, setReceivedCode] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [receivedCode, setReceivedCode] = useState("");
 
   function formatPhoneNumber(phoneNumber) {
-    const jordanCountryCode = '+962';
+    const jordanCountryCode = "+962";
     if (!phoneNumber.startsWith(jordanCountryCode)) {
       phoneNumber = jordanCountryCode + phoneNumber;
     }
@@ -21,29 +21,32 @@ const ForgetPasscode = () => {
   }
 
   async function saveToken(key, value) {
-    console.log(value)
+    console.log(value);
     await SecureStore.setItemAsync(key, value);
   }
 
   const handlePhoneNumberSubmit = async () => {
-     
-     const formatedPhone =  formatPhoneNumber(phoneNumber)
+    const formatedPhone = formatPhoneNumber(phoneNumber);
 
-    console.log("phone number :" , formatedPhone)
+    console.log("phone number :", formatedPhone);
     try {
-      const response = await axios.post('https://backend.sakanijo.com/check-phone', { phoneNumber : formatedPhone });
+      const response = await axios.post(
+        "https://test.sakanijo.com/check-phone",
+        { phoneNumber: formatedPhone }
+      );
 
-      console.log("response :",response.data)
+      console.log("response :", response.data);
 
       if (response.data.success) {
         setReceivedCode(response.data.code); // Assuming the backend sends the code
+        console.log(response.data);
         setStep(2);
       } else {
-        Alert.alert('Error', 'Phone number not found');
+        Alert.alert("Error", "Phone number not found");
       }
     } catch (error) {
-        console.log(error)
-      Alert.alert('Error', 'An error occurred while checking the phone number');
+      console.log(error);
+      Alert.alert("Error", "An error occurred while checking the phone number");
     }
   };
 
@@ -51,23 +54,26 @@ const ForgetPasscode = () => {
     if (verificationCode === receivedCode) {
       setStep(3);
     } else {
-      Alert.alert('Error', 'Invalid verification code');
+      Alert.alert("Error", "Invalid verification code");
     }
   };
 
   const handleNewPasswordSubmit = async () => {
-    const formatedPhone =  formatPhoneNumber(phoneNumber)
+    const formatedPhone = formatPhoneNumber(phoneNumber);
 
     try {
-      const response =  await axios.post('https://backend.sakanijo.com/reset-password-forget', { phoneNumber : formatedPhone , newPassword });
-      console.log(response.data)
-      await saveToken('token', response.data.user.session_token.toString());
-      await saveToken('userId', response.data.user.id.toString());
-      await saveToken('userData', JSON.stringify(response.data.user));
-      router.replace("/(tabs)/")
+      const response = await axios.post(
+        "https://test.sakanijo.com/reset-password-forget",
+        { phoneNumber: formatedPhone, newPassword }
+      );
+      console.log(response.data);
+      await saveToken("token", response.data.user.session_token.toString());
+      await saveToken("userId", response.data.user.id.toString());
+      await saveToken("userData", JSON.stringify(response.data.user));
+      router.replace("/(tabs)/");
     } catch (error) {
-        console.log(error)
-      Alert.alert('Error', 'An error occurred while resetting the password');
+      console.log(error);
+      Alert.alert("Error", "An error occurred while resetting the password");
     }
   };
 
@@ -83,7 +89,11 @@ const ForgetPasscode = () => {
             value={phoneNumber}
             onChangeText={setPhoneNumber}
           />
-          <Button title="التالي" color={Colors.primary} onPress={handlePhoneNumberSubmit} />
+          <Button
+            title="التالي"
+            color={Colors.primary}
+            onPress={handlePhoneNumberSubmit}
+          />
         </View>
       )}
       {step === 2 && (
@@ -96,7 +106,11 @@ const ForgetPasscode = () => {
             value={verificationCode}
             onChangeText={setVerificationCode}
           />
-          <Button  title="تحقق" color={Colors.primary} onPress={handleVerificationSubmit} />
+          <Button
+            title="تحقق"
+            color={Colors.primary}
+            onPress={handleVerificationSubmit}
+          />
         </View>
       )}
       {step === 3 && (
@@ -109,7 +123,11 @@ const ForgetPasscode = () => {
             value={newPassword}
             onChangeText={setNewPassword}
           />
-          <Button  title="حفض" color={Colors.primary} onPress={handleNewPasswordSubmit} />
+          <Button
+            title={"حفظ"}
+            color={Colors.primary}
+            onPress={handleNewPasswordSubmit}
+          />
         </View>
       )}
     </View>
@@ -119,18 +137,18 @@ const ForgetPasscode = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f7f7f7",
     padding: 16,
   },
   innerContainer: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 24,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -138,14 +156,14 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    textAlign: 'center',
-    fontFamily  : "droidAr"
+    textAlign: "center",
+    fontFamily: "droidAr",
   },
   input: {
     height: 48,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Image ,TextInput , Button  ,TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image ,TextInput , Button  ,TouchableOpacity, ActivityIndicator} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import {  useDispatch, useSelector } from 'react-redux';
-  import {  setPriceCalander ,setTriDate , setTimeEnd , setTimeStart , setDaysInCalander , setGettingCalls ,setPriceHide ,setTitle , setDescription , setAdsAccept ,setHajezType , setPublisherType , setVariablePrice ,setHajez    , setPrice , setBuyOrRent , setOwnerStatus , setRentType} from '@/store/slices/publish';
+  import {  setPriceCalander ,setTriDate , setPriceBeforeNoon , setPriceAfterNoon, setPoolDocs , setTimeEnd , setTimeStart , setDaysInCalander , setGettingCalls ,setPriceHide ,setTitle , setDescription , setAdsAccept ,setHajezType , setPublisherType , setVariablePrice ,setHajez    , setPrice , setBuyOrRent , setOwnerStatus , setRentType, setChaletDocs} from '@/store/slices/publish';
 import Colors from '@/constants/Colors';
 import { Calendar } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
@@ -86,18 +86,26 @@ const Step5 = () => {
 
   const [selectedDates, setSelectedDates] = useState({});
 
+  const [dayPrices, setDayPrices] = useState({}); // New state to store prices for selected days
+  
   const onDayPress = (day) => {
     const selected = { ...selectedDates };
+  
     if (selected[day.dateString]) {
       delete selected[day.dateString];
+      const updatedDayPrices = { ...dayPrices };
+      delete updatedDayPrices[day.dateString]; // Remove price when deselecting the day
+      setDayPrices(updatedDayPrices);
     } else {
       selected[day.dateString] = { selected: true, selectedColor: Colors.primary };
     }
+  
     setSelectedDates(selected);
-
-    console.log("selectd Dates :" , Object.keys(selected) )
-    dispatch(setDaysInCalander(Object.keys(selected)))
+    console.log("Selected Dates:", Object.keys(selected));
+    dispatch(setDaysInCalander(Object.keys(selected)));
   };
+
+  
 
 
   const onTripDaySelected = (day) => {
@@ -108,6 +116,60 @@ const Step5 = () => {
     console.log(data.tripDate)
 
   };
+  const [docsLoading, setDocsLoading] = useState(false);
+
+
+  const pickPoolDocs = async () => {
+    setDocsLoading(true)
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return;
+    }
+
+    // Open the image picker
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        quality: 1,
+    });
+
+    if (!result.canceled) {
+        // Dispatch the selected image to Redux
+        dispatch(setPoolDocs(result.assets[0]));
+    }
+
+    setDocsLoading(false)
+};
+
+
+
+const pickChaletDocs = async () => {
+    setDocsLoading(true)
+    // Request permission to access media library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return;
+    }
+
+    // Open the image picker
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: false,
+        quality: 1,
+    });
+
+    if (!result.canceled) {
+        // Dispatch the selected image to Redux
+        dispatch(setChaletDocs(result.assets[0]));
+    }
+
+    setDocsLoading(false)
+};
+
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}> {t("step5Title")}</Text>
@@ -122,10 +184,25 @@ const Step5 = () => {
                     <Text style={styles.sectionTitle}>{t("descriptionInput")}<Text style={styles.required}>*</Text></Text>
                     <TextInput placeholder='' multiline style={{...styles.input , height : 100}} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=>{dispatch(setDescription(text))}}/>
                 </View>
-        {
-                !data.priceHide ?
+
                 <View style={styles.box}>
-                    <Text style={styles.sectionTitle}>{t("priceInput")}</Text>
+
+                    {
+                        data.buyOrRent === 'الحجز'?         
+                        data.homeType==='صالات رياضة'?
+                        <Text style={styles.sectionTitle}>{t("priceInput") + " " + data.subscriptionTypeGym}</Text>
+                        :
+                        data.homeType === 'تنضيم رحلات'?
+                        <Text style={styles.sectionTitle}>{t("tripPrice")}</Text>
+                        :
+                        <Text style={styles.sectionTitle}>{t("priceInputFullDay")}</Text>
+
+                        :
+                            <Text style={styles.sectionTitle}>{t("priceInput")}</Text>
+                    }
+                    
+
+
                     <View style={{width:"100%"  , alignItems : "flex-end" }}>
                     <TextInput placeholder='0.0' defaultValue={data.price} keyboardType='number-pad' showSoftInputOnFocus={true}  style={{...styles.input , width : "50%"}} textAlign='right' cursorColor={Colors.primary} onChangeText={(text)=> {
                         if(+text <= 1){
@@ -138,19 +215,25 @@ const Step5 = () => {
                     {priceLimmit? <Text style={{color : "red" , fontFamily : 'droidAr' ,  fontSize : 10}}>يجب ان يكون المبلغ اكبر من 1 </Text>   : null}
                     </View>
                 </View>
- : null}
-                    <View style={styles.slectionBoxes}>
-                        <Pressable style={[styles.boxSelection , !data.priceHide === true && styles.selectedBox]}  onPress={() =>  dispatch(setPriceHide(false)) }>
-                            <Text style={styles.text}>{t("showPrice")}</Text>
-                        </Pressable>
-                        
-                        <Pressable style={[styles.boxSelection , !data.priceHide === false && styles.selectedBox]}  onPress={() => {
-                            
-                            dispatch(setPriceHide(true)) 
-                            }}>
-                            <Text style={styles.text}>{t("hidePrice")}</Text>
-                        </Pressable>
-                    </View>
+
+
+ {
+    data.buyOrRent === 'الحجز'? 
+    null
+    :
+    <View style={styles.slectionBoxes}>
+    <Pressable style={[styles.boxSelection , !data.priceHide === true && styles.selectedBox]}  onPress={() =>  dispatch(setPriceHide(false)) }>
+        <Text style={styles.text}>{t("showPrice")}</Text>
+    </Pressable>
+    
+    <Pressable style={[styles.boxSelection , !data.priceHide === false && styles.selectedBox]}  onPress={() => {
+        
+        dispatch(setPriceHide(true)) 
+        }}>
+        <Text style={styles.text}>{t("hidePrice")}</Text>
+    </Pressable>
+</View>
+ }
 
 
 { data.homeType =="فيلا / منزل"  || data.homeType == "شقة"  || data.homeType == "مزرعة"  || data.homeType == 'مخيمات و اكواخ' ?
@@ -160,7 +243,9 @@ const Step5 = () => {
                         <Pressable style={[styles.boxSelection , data.buyOrRent === 'للبيع' && styles.selectedBox]}  onPress={() => dispatch(setBuyOrRent('للبيع')) }>
                             <Text style={styles.text}>{t("sell")}</Text>
                         </Pressable>
-                        <Pressable style={[styles.boxSelection , data.buyOrRent === 'الحجز' && styles.selectedBox]}  onPress={() =>  dispatch(setBuyOrRent('الحجز'))}>
+                        <Pressable style={[styles.boxSelection , data.buyOrRent === 'الحجز' && styles.selectedBox]}  onPress={() => {
+                            dispatch(setPriceHide(false)) 
+                            dispatch(setBuyOrRent('الحجز'))}}>
                         <Text style={styles.text}>{t("booking")}</Text>
                     </Pressable>
                         <Pressable style={[styles.boxSelection , data.buyOrRent === 'للإيجار' && styles.selectedBox]}  onPress={() =>dispatch(setBuyOrRent('للإيجار'))}>
@@ -172,14 +257,17 @@ const Step5 = () => {
 
 
 {
-     data.homeType == 'شليهات'  ?
+     data.homeType == 'شليهات'  ||data.homeType == 'استوديو' ?
      <View style={styles.box}>
      <Text style={styles.sectionTitle}>{t("sellMethodInput")}</Text>
      <View style={styles.slectionBoxes}>
          <Pressable style={[styles.boxSelection , data.buyOrRent === 'للبيع' && styles.selectedBox]}  onPress={() => dispatch(setBuyOrRent('للبيع')) }>
              <Text style={styles.text}>{t("sell")}</Text>
          </Pressable>
-         <Pressable style={[styles.boxSelection , data.buyOrRent === 'الحجز' && styles.selectedBox]}  onPress={() =>  dispatch(setBuyOrRent('الحجز'))}>
+         <Pressable style={[styles.boxSelection , data.buyOrRent === 'الحجز' && styles.selectedBox]}  onPress={() => {
+            dispatch(setPriceHide(false)) 
+            dispatch(setBuyOrRent('الحجز'))
+            }}>
          <Text style={styles.text}>{t("booking")}</Text>
      </Pressable>
          {/* <Pressable style={[styles.boxSelection , data.buyOrRent === 'للإيجار' && styles.selectedBox]}  onPress={() =>dispatch(setBuyOrRent('للإيجار'))}>
@@ -192,7 +280,7 @@ const Step5 = () => {
      null
 }
 
-{   data.homeType == 'مكاتب وعيادات' || data.homeType == 'استوديو'  ||
+{   data.homeType == 'مكاتب وعيادات' || 
             data.homeType == 'محلات ومخازن' ?
                     <View style={styles.box}>
                     <Text style={styles.sectionTitle}>{t("sellMethodInput")}</Text>
@@ -200,7 +288,6 @@ const Step5 = () => {
                         <Pressable style={[styles.boxSelection , data.buyOrRent === 'للبيع' && styles.selectedBox]}  onPress={() => dispatch(setBuyOrRent('للبيع')) }>
                             <Text style={styles.text}>{t("sell")}</Text>
                         </Pressable>
-                        
                         <Pressable style={[styles.boxSelection , data.buyOrRent === 'للإيجار' && styles.selectedBox]}  onPress={() =>dispatch(setBuyOrRent('للإيجار'))}>
                             <Text style={styles.text}>{t("rent")}</Text>
                         </Pressable>
@@ -292,14 +379,33 @@ const Step5 = () => {
                     ) : null : null}
 
 
+                    {
+                        data.homeType == 'مسابح'    || data.homeType == "قاعات اجتماعات"  ||  data.homeType === "ملاعب"?   
+
+                        <>
+                        <View style={styles.box}>
+                        <Text style={styles.sectionTitle}>{t("priceBeforeNoon")}<Text style={styles.required}>*</Text></Text>
+                        <TextInput placeholder='' style={styles.input} textAlign='right' cursorColor={Colors.primary} defaultValue={data.price} onChangeText={(text)=>{dispatch(setPriceBeforeNoon(text))}}/>
+                        </View>
+                        <View style={styles.box}>
+                        <Text style={styles.sectionTitle}>{t("priceAfterNoon")}<Text style={styles.required}>*</Text></Text>
+                        <TextInput placeholder='' style={styles.input} textAlign='right' cursorColor={Colors.primary} defaultValue={data.price} onChangeText={(text)=>{dispatch(setPriceAfterNoon(text))}}/>
+                        </View>
+                        </>
+                        :
+                        null
+                    }
+
+
 
 
 
 {data.buyOrRent === 'الحجز' && 
  (data.homeType !== 'مسابح' && 
   data.homeType !== 'صالات رياضة' && 
+  data.homeType !== 'تنضيم رحلات' && 
   data.homeType !== 'قاعات اجتماعات' && 
-  data.homeType !== 'ملاعب') ? (
+  data.homeType !== 'ملاعب' ) ? (
     <View style={{...styles.box, marginBottom: 100}}>
         <Text style={styles.sectionTitle}>{t('bookingAvailabelDays')}</Text>
         <View style={styles.slectionBoxes}>
@@ -322,6 +428,7 @@ const Step5 = () => {
  (data.homeType !== 'مسابح' && 
   data.homeType !== 'صالات رياضة' && 
   data.homeType !== 'قاعات اجتماعات' && 
+  data.homeType !== 'تنضيم رحلات' && 
   data.homeType !== 'ملاعب')   ? (
                     <View style={styles.box}>
                         <Text style={styles.sectionTitle}>{t("priceState")}</Text>
@@ -363,39 +470,78 @@ const Step5 = () => {
                     </View>
                     ) : null}
 
-                        {priceType === 'variable' &&  data.buyOrRent === 'الحجز' ? (
-                       <View style={{...styles.box , marginBottom : data.hajezDays.length +  300}}>
-                        <Text style={styles.sectionTitle}> {t("priceByDaysInCalander")}</Text>
-                            <View style={styles.variablePriceContainer}>
-                            <View style={styles.calendarContainer}>
-                            <Calendar
-                                onDayPress={onDayPress}
-                                markedDates={selectedDates}
-                                style={styles.calendar}
-                            />
-                            </View>
-                            <View style={styles.variablePriceRow}>
-                            {/* priceForSelectedDays */}
-                            <Text style={styles.text}>{t("priceForSelectedDays")}</Text>
-                            <TextInput
-                            style={{...styles.input}}
-                            placeholder="ادخل السعر الجديد"
-                            defaultValue={data.price}
-                            keyboardType="numeric"
-                            onChangeText={(text) => {
-                                dispatch(setPriceCalander(text))
-                            }}
-                            />
-                        </View>
-                            
+{
+    data.buyOrRent === 'الحجز' && 
+    ["فيلا / منزل", "شقة", "مزرعة", "مخيمات و اكواخ", "شليهات", "استوديو"].includes(data.homeType) ? (
+        <>
+            <View style={styles.box}>
+                <Text style={styles.sectionTitle}>{t("priceAtDay")}</Text>
+                <TextInput 
+                    placeholder='' 
+                    style={styles.input} 
+                    textAlign='right' 
+                    cursorColor={Colors.primary} 
+                    defaultValue={data.price} 
+                    onChangeText={(text) => { dispatch(setPriceBeforeNoon(text)) }}
+                />
+            </View>
+            <View style={styles.box}>
+                <Text style={styles.sectionTitle}>{t("priceAtNight")}</Text>
+                <TextInput 
+                    placeholder='' 
+                    style={styles.input} 
+                    textAlign='right' 
+                    cursorColor={Colors.primary} 
+                    defaultValue={data.price} 
+                    onChangeText={(text) => { dispatch(setPriceAfterNoon(text)) }}
+                />
+            </View>
+        </>
+    ) : null
+}
 
-                            </View>
-                    </View>
-                    ) : null}
+
+{priceType === 'variable' && data.buyOrRent === 'الحجز' ? (
+  <View style={{...styles.box2 }}>
+    <Text style={styles.sectionTitle}> {t("priceByDaysInCalander")}</Text>
+    <View style={styles.variablePriceContainer}>
+      <View style={styles.calendarContainer}>
+        <Calendar
+          onDayPress={onDayPress}
+          markedDates={selectedDates}
+          style={styles.calendar}
+        />
+      </View>
+
+      {/* Dynamic inputs for selected days */}
+      <View style={{flexDirection : "row" , gap : 10 , flexWrap : "wrap" , width : "100%" }}>
+      {Object.keys(selectedDates).map((day) => (
+        <View key={day} style={styles.variablePriceRow}>
+          <Text style={styles.text}>{t("priceForSelectedDays")} {day}</Text>
+          <TextInput
+            style={{...styles.input}}
+            placeholder="ادخل السعر الجديد"
+            value={dayPrices[day] || ""} // Display the current price if available
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              const updatedDayPrices = { ...dayPrices, [day]: text };
+              setDayPrices(updatedDayPrices);
+              dispatch(setPriceCalander(updatedDayPrices)); // Optionally send updated prices to redux
+            }}
+          />
+        </View>
+        
+
+      ))}
+      </View>
+    </View>
+  </View>
+) : null}
+
 
 
 { data.homeType === "تنضيم رحلات" ? (
-                       <View style={{...styles.box , marginBottom : data.hajezDays.length +  300}}>
+                       <View style={{...styles.box2 }}>
                         <Text style={styles.sectionTitle}> {t("timeTrip")}</Text>
                             <View style={styles.variablePriceContainer}>
                             <View style={styles.calendarContainer}>
@@ -429,11 +575,19 @@ const Step5 = () => {
                 : null}
                 
                 
-                <View style={styles.box}>
+                <View style={{...styles.box  }}>
                     <Text style={styles.sectionTitle}>{t("areYou")}</Text>
                     <View style={styles.slectionBoxes}>
                         <Pressable style={[styles.boxSelection , data.publisherState === 'ملك' && styles.selectedBox]}  onPress={() => handleSelectOption('ملك')}>
-                            <Text style={styles.text}>{t("ownerRealEstate")}</Text>
+                            { data.homeType === 'تنضيم رحلات' ?
+                        <Text style={styles.text}>{t("صاحب الرحلة")}</Text>
+                        :
+                        data.homeType === 'صالات رياضة' ?
+                        <Text style={styles.text}>{t("صاحب الصالة")}</Text>
+                        :
+                        <Text style={styles.text}>{t("ownerRealEstate")}</Text>
+                        }
+                            
                         </Pressable>
                         
                         <Pressable style={[styles.boxSelection , data.publisherState === 'وسيط' && styles.selectedBox]}  onPress={() => handleSelectOption('وسيط')}>
@@ -474,8 +628,50 @@ const Step5 = () => {
                     </Pressable>
                     </View>
                 </View>
+}
 
-                }
+
+{
+                    data.homeType !== 'مسابح'?
+                    null 
+                    :
+                    <View style={styles.box}>
+                    <Text style={styles.sectionTitle}>{t("poolDocs")}</Text>
+                    <View style={styles.slectionBoxes}>
+                    <Pressable style={[styles.boxSelection , data.poolDocument && styles.selectedBox]}  onPress={pickPoolDocs}>
+                        <Text style={styles.text}> {
+
+docsLoading? <ActivityIndicator color={"#121212"} size={20} />   : 
+                             data.poolDocument ? 
+                             t("uploaded")
+                             :
+                             t("upload1")
+                            }  </Text>
+                    </Pressable>
+                    </View>
+                </View>
+}
+
+{
+                    data.homeType !== 'شليهات'?
+                    null 
+                    :
+                    <View style={styles.box}>
+                    <Text style={styles.sectionTitle}>{t("chaletDocs")}</Text>
+                    <View style={styles.slectionBoxes}>
+                    <Pressable style={[styles.boxSelection , data.chaletDocument && styles.selectedBox]}  onPress={pickChaletDocs}>
+                        <Text style={styles.text}> {
+
+docsLoading? <ActivityIndicator color={"#121212"} size={20} />   : 
+                             data.chaletDocument ? 
+                             t("uploaded")
+                             :
+                             t("upload1")
+                            }  </Text>
+                    </Pressable>
+                    </View>
+                </View>
+}
                 
 
                
@@ -506,6 +702,14 @@ const styles = StyleSheet.create({
         display: 'flex',
         width: "100%",
         height: 150,
+        gap : 10 ,
+        alignItems : "flex-end"
+        
+    },
+    box2: {
+        padding: 16,
+        display: 'flex',
+        width: "100%",
         gap : 10 ,
         alignItems : "flex-end"
         
@@ -586,7 +790,7 @@ const styles = StyleSheet.create({
         gap : 3 , 
         justifyContent : "center"
     },
-    variablePriceRow: {  alignItems: 'center', marginVertical: 5 },
+    variablePriceRow: {  alignItems: 'center', marginVertical: 5 , width : 100 },
     timePickerContainer: {
         marginTop: 15,
     },
