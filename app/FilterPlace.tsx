@@ -2521,7 +2521,7 @@ const FilterPlace = () => {
   }
 
   const handlePlacePress = async (place) => {
-    const apiUrl = `https://test.sakanijo.com/places/filter/city?longitude=${place.long}&latitude=${place.lat}&name=${place.name} ${location}`;
+    const apiUrl = `https://backend.sakanijo.com/places/filter/city?longitude=${place.long}&latitude=${place.lat}&name=${place.name} ${location}`;
     console.log("url:", apiUrl);
     try {
       await SecureStore.setItemAsync("apiLink", apiUrl);

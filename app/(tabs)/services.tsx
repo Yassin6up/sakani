@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import Swiper from "react-native-swiper";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import Colors from "../../constants/Colors";
 import axios from "axios";
 // Sample data mimicking JSON from backend
@@ -21,13 +21,14 @@ const servicesData = [
 
 const Page = () => {
   const [slides, setSlides] = useState([]);
+  const [services, setServices] = useState([]);
 
   // Fetch all slides when component mounts
   useEffect(() => {
     const fetchSlides = async () => {
       try {
         const response = await axios.get(
-          "https://test.sakanijo.com/api/slides"
+          "https://backend.sakanijo.com/api/slides"
         ); // Fetch slides from the backend
         setSlides(response.data);
       } catch (error) {
@@ -36,6 +37,19 @@ const Page = () => {
       }
     };
 
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get(
+          "https://backend.sakanijo.com/api/services"
+        ); 
+        setServices(response.data.services);
+      } catch (error) {
+        console.log("Error fetching slides:", error);
+      } finally {
+      }
+    };
+
+    fetchServices()
     fetchSlides();
   }, []); // Empty dependency array to run only once on component mount
 
@@ -52,13 +66,19 @@ const Page = () => {
           activeDotColor={Colors.primary}>
           {slides.map((slide) => {
             return (
-              <View style={styles.slide}>
+              <Pressable
+              onPress={()=>{
+                if(slide.serviceId != "0"){
+                  router.navigate(`/services/${slide.serviceId}`)
+                }
+              }}
+              style={styles.slide}>
                 <Image
                   style={styles.image}
-                  src={`https://test.sakanijo.com/api/slides/single/${slide.file_path}`}
+                  src={`https://backend.sakanijo.com/api/slides/single/${slide.file_path}`}
                   resizeMode="cover"
                 />
-              </View>
+              </Pressable>
             );
           })}
         </Swiper>
@@ -72,33 +92,17 @@ const Page = () => {
           gap: 3,
           justifyContent: "center",
         }}>
-        {servicesData.map((service) => (
-          <Link key={service.id} href={`/services/${service.id}`} asChild>
+        {services?.map((service) => (
+          <Link key={service.id} href={`/services/${service.service_id}`} asChild>
             <Pressable style={styles.singleCard}>
               <View style={styles.iconCard}>
-                {service.icon === "team" && (
-                  <AntDesign
-                    name={service.icon}
-                    size={24}
-                    color={Colors.primary}
-                  />
-                )}
-                {service.icon === "comments-dollar" && (
-                  <FontAwesome5
-                    name={service.icon}
-                    size={24}
-                    color={Colors.primary}
-                  />
-                )}
-                {service.icon === "file-contract" && (
-                  <FontAwesome5
-                    name={service.icon}
-                    size={24}
-                    color={Colors.primary}
-                  />
-                )}
+              <Image 
+              source={{ uri: `https://backend.sakanijo.com/api/icons/single/${service.icon}` }} 
+              style={{ width: 80, height: 80, borderRadius: 40 }} 
+              resizeMode="contain" // or "cover"
+            />
               </View>
-              <Text style={styles.cardText}>{service.text}</Text>
+              <Text style={styles.cardText}>{service.title}</Text>
             </Pressable>
           </Link>
         ))}
@@ -115,21 +119,15 @@ const styles = StyleSheet.create({
   },
   singleCard: {
     width: "30%",
-    height: 100,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    borderRadius: 5,
+    gap : 10 ,
     alignItems: "center",
     justifyContent: "space-evenly",
   },
-  iconCard: {
-    padding: 15,
-    borderRadius: 5,
-    backgroundColor: "#eee",
-  },
+  
   cardText: {
     fontFamily: "droidAr",
+    fontSize: 17 , 
+    textAlign : "center"
   },
   wrapper: {
     height: 150,

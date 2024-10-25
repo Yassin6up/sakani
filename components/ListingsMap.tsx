@@ -120,7 +120,7 @@ const ListingsMap = memo(({ listings }: Props) => {
         zoomEnabled={true}
         pitchEnabled={false}
         rotateEnabled={false}
-        provider={PROVIDER_GOOGLE}
+        // provider={PROVIDER_GOOGLE}
       >
         {listings?.map((item) => {
           if (!item?.lat || !item?.lng) {

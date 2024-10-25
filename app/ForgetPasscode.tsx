@@ -31,7 +31,7 @@ const ForgetPasscode = () => {
     console.log("phone number :", formatedPhone);
     try {
       const response = await axios.post(
-        "https://test.sakanijo.com/check-phone",
+        "https://backend.sakanijo.com/check-phone",
         { phoneNumber: formatedPhone }
       );
 
@@ -63,7 +63,7 @@ const ForgetPasscode = () => {
 
     try {
       const response = await axios.post(
-        "https://test.sakanijo.com/reset-password-forget",
+        "https://backend.sakanijo.com/reset-password-forget",
         { phoneNumber: formatedPhone, newPassword }
       );
       console.log(response.data);

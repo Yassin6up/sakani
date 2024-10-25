@@ -74,7 +74,7 @@ const Page = () => {
       priceRange: priceRange,
     });
     try {
-      const response = await axios.post("https://test.sakanijo.com/filter", {
+      const response = await axios.post("https://backend.sakanijo.com/filter", {
         city: places[selectedPlace]?.title,
         date: selectedDate,
         priceRange: priceRange,

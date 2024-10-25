@@ -63,7 +63,7 @@ const Page = () => {
       const userId = await SecureStore.getItem("userId");
       console.log(userId);
       const response = await axios.post(
-        `https://test.sakanijo.com/user/update-name`,
+        `https://backend.sakanijo.com/user/update-name`,
         {
           name: firstName + " " + lastName,
           id: userId,
@@ -97,7 +97,7 @@ const Page = () => {
     <View style={styles.adCard}>
       <Image
         source={{
-          uri: `https://test.sakanijo.com/api/images/${encodeURIComponent(
+          uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(
             item.folderName
           )}/${encodeURIComponent(item.photos?.split(",")[0])}`,
         }}
@@ -123,7 +123,7 @@ const Page = () => {
         onConfirm={async () => {
           try {
             const response = await axios.post(
-              `https://test.sakanijo.com/delete/places/${item.id}`
+              `https://backend.sakanijo.com/delete/places/${item.id}`
             );
             if (response.status === 200) {
               setRefrish(!refrish);
@@ -149,7 +149,7 @@ const Page = () => {
 
       try {
         const response = await axios.get(
-          "https://test.sakanijo.com/profile/places",
+          "https://backend.sakanijo.com/profile/places",
           {
             params: { ownerId },
           }

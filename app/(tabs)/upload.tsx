@@ -234,7 +234,7 @@ const Page = () => {
     console.log("start inserting ");
     try {
       const response = await axios.post(
-        "https://test.sakanijo.com/api/places/add",
+        "https://backend.sakanijo.com/api/places/add",
         formData,
         {
           headers: {

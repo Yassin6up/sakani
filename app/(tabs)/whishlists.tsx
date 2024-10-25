@@ -34,7 +34,7 @@ const Page = () => {
 
       try {
         const response = await axios.get(
-          `https://test.sakanijo.com/api/user/${result}/likes`
+          `https://backend.sakanijo.com/api/user/${result}/likes`
         );
         setData(response.data);
         console.log("data from the favorite page : ", response.data);
@@ -60,7 +60,7 @@ const Page = () => {
             exiting={FadeOutLeft}>
             <Animated.Image
               source={{
-                uri: `https://test.sakanijo.com/api/images/${encodeURIComponent(
+                uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(
                   item.folderName
                 )}/${encodeURIComponent(photos[0])}`,
               }}

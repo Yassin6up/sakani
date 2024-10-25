@@ -105,7 +105,7 @@ const ResirvationTime = ({ listingData }) => {
       console.log("user id :", result);
 
       const response = await axios.post(
-        "https://test.sakanijo.com/api/bookings/add",
+        "https://backend.sakanijo.com/api/bookings/add",
         {
           checkIn: selectedDate,
           checkOut: selectedDate,

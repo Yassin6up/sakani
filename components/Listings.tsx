@@ -62,7 +62,7 @@ const Listings = ({ listings: items, refresh, category }: Props) => {
             {photos?.length > 0 ? (
               <Animated.Image
                 source={{
-                  uri: `https://test.sakanijo.com/api/images/${encodeURIComponent(
+                  uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(
                     item.folderName
                   )}/${encodeURIComponent(photos[0])}`,
                 }}

@@ -76,7 +76,7 @@ const EditAd = () => {
 
       // Send the request to the backend to toggle the 'active' status
       const response = await axios.post(
-        `https://test.sakanijo.com/api/places/${id}/toggle-active`
+        `https://backend.sakanijo.com/api/places/${id}/toggle-active`
       );
 
       // Toggle the local state if the request was successful
@@ -96,7 +96,7 @@ const EditAd = () => {
     const fetchAdDetails = async () => {
       try {
         const response = await axios.get(
-          `https://test.sakanijo.com/api/places/${id}`
+          `https://backend.sakanijo.com/api/places/${id}`
         );
         const ad = response.data;
 
@@ -129,7 +129,7 @@ const EditAd = () => {
 
         setSelectedDayPrice(ad?.calanderDaysPrice);
       } catch (err) {
-        console.error("Error fetching ad details:", err);
+        console.error("Error fetching ad details:", err.response.data);
         setError("Failed to fetch ad details");
         setLoading(false);
       }
@@ -195,10 +195,10 @@ const EditAd = () => {
       // Append the photos (image files)
       photos.forEach((photo, index) => {
         if (/^\d+_/.test(photo)) {
-          formData.append(`existingPhotos[${index}]`, photo);
+          formData.append(`existingPhotos`, photo);
         } else {
           const fileType = photo.split(".").pop();
-          formData.append(`newPhotos[${index}]`, {
+          formData.append(`newPhotos`, {
             uri: photo,
             name: `photo_${index}.${fileType}`,
             type: `image/${fileType}`,
@@ -208,7 +208,7 @@ const EditAd = () => {
 
       // Send the FormData to the backend
       const response = await axios.post(
-        `https://test.sakanijo.com/ads/update/${id}`,
+        `https://backend.sakanijo.com/ads/update/${id}`,
         formData,
         {
           headers: {
@@ -227,7 +227,7 @@ const EditAd = () => {
     } catch (err) {
       setLoad(false);
 
-      console.error("Error updating ad:", err);
+      console.error("Error updating ad:", err.response.data);
     }
   };
 
@@ -274,7 +274,7 @@ const EditAd = () => {
               <Image
                 source={{
                   uri: /^\d+_/.test(photo)
-                    ? `https://test.sakanijo.com/api/images/${encodeURIComponent(
+                    ? `https://backend.sakanijo.com/api/images/${encodeURIComponent(
                         myAd.folderName
                       )}/${encodeURIComponent(photo)}`
                     : photo,

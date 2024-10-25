@@ -63,7 +63,7 @@ const Page = () => {
       console.log("phone sended :", formattedPhoneNumber);
       console.log("pass sended :", password);
       // Send the phone number and password to the backend
-      const response = await axios.post("https://test.sakanijo.com/login", {
+      const response = await axios.post("https://backend.sakanijo.com/login", {
         phone: formattedPhoneNumber,
         password: password,
       });
@@ -104,13 +104,16 @@ const Page = () => {
         formattedPhoneNumber = formatPhoneNumber(phoneRegister);
       }
 
-      const response = await fetch("https://test.sakanijo.com/verify-phone", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code, phone: formattedPhoneNumber }),
-      });
+      const response = await fetch(
+        "https://backend.sakanijo.com/verify-phone",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code, phone: formattedPhoneNumber }),
+        }
+      );
       const result = await response.json();
       console.log("result :", result);
       if (result.user) {
@@ -150,11 +153,14 @@ const Page = () => {
       console.log("phone sended :", formattedPhoneNumber);
       console.log("pass sended :", password);
       // Send the phone number and password to the backend
-      const response = await axios.post("https://test.sakanijo.com/register", {
-        phone: formattedPhoneNumber,
-        password: password,
-        name: name,
-      });
+      const response = await axios.post(
+        "https://backend.sakanijo.com/register",
+        {
+          phone: formattedPhoneNumber,
+          password: password,
+          name: name,
+        }
+      );
 
       // Check if the login was successful and token is received
       if (response.data && response.data.user) {

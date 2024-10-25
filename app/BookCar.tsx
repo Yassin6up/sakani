@@ -1,12 +1,61 @@
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { View, StyleSheet, TextInput, Text, TouchableOpacity , ScrollView , Dimensions } from 'react-native';
+import { View, StyleSheet, TextInput, Text, TouchableOpacity ,Pressable , ScrollView , Dimensions  , Linking} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 const HIEGHT = Dimensions.get("window").height
+import { useState , useEffect } from 'react';
+import axios from "axios"
 
 const Page = () => {
+
+  const [service, setService] = useState(null);
+const [error, setError] = useState(null);
+const [listRequired, setList] = useState([]);
+
+const sendWhatsApp = (phoneNumber, text = "") => {
+  let whatsappUrl = `whatsapp://send?phone=${phoneNumber}`;
+  if (text) {
+    whatsappUrl += `&text=${encodeURIComponent(text)}`;
+  }
+  Linking.openURL(whatsappUrl).catch(() => {
+    // Handle error (e.g., WhatsApp not installed)
+    alert("الرجاء تاكد من ان الواتساب محمل على جهازك");
+  });
+};
+const makePhoneCall = (phoneNumber) => {
+  let phoneUrl = `tel:${phoneNumber}`;
+  Linking.openURL(phoneUrl);
+};
+
+
+useEffect(() => {
+  const fetchService = async () => {
+    try {
+      const response = await axios.get(`https://backend.sakanijo.com/services/car`);
+      setService(response.data[0]);
+      console.log(response.data)
+      const list = JSON.parse(response.data[0].required_list) 
+      const finnalList = JSON.parse(list)
+      setList(finnalList)
+      console.log(list)
+    } catch (err) {
+      console.log(err)
+      setError(err.response.data ? err.response.data.error.toString() : 'Error fetching service data');
+    }
+  };
+
+  fetchService();
+}, []);
+
+if (error) {
+  return <Text>{error}</Text>;
+}
+
+if (!service) {
+  return <Text>Loading...</Text>;
+}
 
   return (
     <ScrollView style={styles.container}>
@@ -14,41 +63,47 @@ const Page = () => {
     <View style={{ position : "relative" , 
     top: "-10%" , height:140 , width : "100%" , backgroundColor : Colors.primary , borderRadius : 100, 
     display :"flex" , justifyContent : "flex-end", alignItems : "center" }}>
-    <Text style={styles.title}>حجز سيارة</Text>
+    <Text style={styles.title}>{service.title}</Text>
     </View>
-    <Text style={{textAlign : "center" , fontFamily: "droidAr" , fontSize : 18 , marginTop    : "-30px"}}>تمكنك هذه الخدمة من حجز سيارات</Text>
+    <Text style={{textAlign : "center" , fontFamily: "droidAr" , fontSize : 18 , marginTop    : "-30px"}}>{service.description}</Text>
      <Text style={{padding : 5 ,marginTop :  30 ,  fontFamily: "droidAr" }}>المستلزمات الضرورية</Text>
       <View style={styles.listRequiremnt}>
-          <View style={styles.singleCheck}>
-            <Text style={{fontFamily :"droidAr" }}>بطاقة تعريف الشخص</Text>
+      {
+        listRequired?.map((item)=>{
+          return (
+            <View style={styles.singleCheck}>
+            <Text style={{fontFamily :"droidAr" }}>{item}</Text>
             <AntDesign name="checkcircle" size={24} color={Colors.primary} />
            </View>
-           <View style={styles.singleCheck}>
-            <Text style={{fontFamily :"droidAr" }}> رخصة السياقة (مر عليها اكنر من خمس سنوات )</Text>
-            <AntDesign name="checkcircle" size={24} color={Colors.primary} />
-           </View>
-           <View style={styles.singleCheck}>
-            <Text style={{fontFamily :"droidAr" }}>صورة شخصية.</Text>
-            <AntDesign name="checkcircle" size={24} color={Colors.primary} />
-           </View>
+          )
+
+        })
+      }
       </View>
+      <View style={{width : "100%" , display : "flex" , alginItems : "flex-end" ,  }}>
+        <Text style={{padding : 5 ,marginTop :  30 ,  fontFamily: "droidAr" , backgrouondColor : "red" , }}>للتواصل : </Text>
+      </View>
+      <View style={styles.listRequiremnt}>
+          <Pressable style={styles.singleCheck}
+          onPress={()=>{
+            makePhoneCall(service.phone)
+          }}
+          >
+            <Text style={{}}>{service.phone}</Text>
+            <Ionicons name="call" size={24} color={Colors.primary} />
+            </Pressable>
+      </View>
+      
       <View style={{width : "100%" , display : "flex" , alginItems : "flex-end" ,  }}>
         <Text style={{padding : 5 ,marginTop :  30 ,  fontFamily: "droidAr" , backgrouondColor : "red" , }}>لحجز سيارة الرجاء الضغط على الزر اسفله:</Text>
       </View>
-      {/* <View style={styles.listRequiremnt}>
-          <View style={styles.singleCheck}>
-            <Text style={{fontFamily :"droidAr" }}> من الأحد الى الخميس.</Text>
-            <Ionicons name="calendar" size={24} color={Colors.primary} />
-            </View>
-           <View style={styles.singleCheck}>
-            <Text style={{fontFamily :"droidAr" }}>8 صباحاً - 4 عصراً</Text>
-            <Ionicons name="time" size={24} color={Colors.primary} />
-           </View>
-      </View> */}
-      
-      <View style={styles.whatsappButton}>
+      <Pressable style={styles.whatsappButton}
+       onPress={()=>{
+        sendWhatsApp(service.wtsLink , `أريد  حجز سيارة`)
+      }}
+      >
         <View><MaterialCommunityIcons name="whatsapp" size={24} color="white" /></View>
-      </View>
+      </Pressable>
     </ScrollView>
   );
 };
@@ -117,8 +172,7 @@ const styles = StyleSheet.create({
     fontFamily: 'droidAr',
   },
   whatsappButton: {
-    position: 'absolute',
-    bottom: '-20%',
+    marginBottom : 50 ,
     alignSelf: 'center',
     backgroundColor: Colors.primary,
     borderRadius: 25,

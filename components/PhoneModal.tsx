@@ -51,7 +51,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
     try {
       const response = await axios.post(
-        `https://test.sakanijo.com/user/update-phone`,
+        `https://backend.sakanijo.com/user/update-phone`,
         {
           phone: formatPhoneNumber(newPhoneNumber),
           id: userId,
@@ -83,7 +83,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
 
     try {
       const response = await axios.post(
-        `https://test.sakanijo.com/user/phone-verification`,
+        `https://backend.sakanijo.com/user/phone-verification`,
         {
           phone: formatPhoneNumber(newPhoneNumber),
           id: userId,

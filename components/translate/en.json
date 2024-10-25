@@ -227,6 +227,8 @@
           "year" : "year" ,
           "hour" : "Hour",
           "day" : "Day" ,
+          "connectionIsNotGood" : "You lost internet connection.",
+          "refrish": "Refresh",
           "title": "Title",
           "allDay" : "Full Day"  ,
           "priceBeforeNoon" : "price in the beforenoon",

@@ -9,7 +9,8 @@ let initialState ={
       lat : 0,
       long : 0
     },
-    globalFilter : false
+    globalFilter : false  , 
+    reloadConnection : false
     }
 }
 
@@ -19,6 +20,9 @@ const places = createSlice({
   reducers: {
     setGlobalFilter : (state ,  action)=>{
       state.value.globalFilter = !state.value.globalFilter
+    },
+    setReloadConnection : (state ,  action)=>{
+      state.value.reloadConnection = !state.value.reloadConnection
     },
     setPlaces: (state, action) => {
       console.log("start seting places")
@@ -39,7 +43,8 @@ export const {
   setPlaces,
   setFilter ,
   setMap ,
-  setGlobalFilter
+  setGlobalFilter ,
+  setReloadConnection
 } = places.actions;
 
 export default places.reducer;

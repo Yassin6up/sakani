@@ -31,6 +31,7 @@ interface Props {
 
 const ExploreHeader = ({ onCategoryChanged }: Props) => {
   const places = useSelector((state) => state.places.value.places);
+  const reloadConnection = useSelector((state) => state.places.value.reloadConnection);
   const [filteredPlaces, setFilteredPlaces] = useState(places);
   const isFilter = useSelector((state) => state.places.value.isFilter);
   const { t } = useTranslation();
@@ -96,7 +97,7 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
     };
 
     fetchApiUrl();
-  }, [isFilter]);
+  }, [isFilter  , reloadConnection]);
 
   const selectCategory = async (index: number, type: string) => {
     const selected = itemsRef.current[index];
@@ -148,7 +149,7 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
         console.error("Error fetching data from API:", error);
       }
     } else {
-      const url = `https://test.sakanijo.com/api/places?category=${category}&type=${type}`;
+      const url = `https://backend.sakanijo.com/api/places?category=${category}&type=${type}`;
       try {
         const response = await axios.get(url);
         console.log("Data fetched successfully:", response.data.places);
@@ -163,7 +164,7 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
   useEffect(() => {
     // Fetch categories from backend
     axios
-      .get("https://test.sakanijo.com/categories/all") // Replace with your backend URL
+      .get("https://backend.sakanijo.com/categories/all") // Replace with your backend URL
       .then((response) => {
         console.log(response);
         // Destructure the response data
@@ -180,7 +181,7 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
         console.error("Error fetching categories:", error);
         setLoading(false);
       });
-  }, []);
+  }, [reloadConnection]);
 
   const renderCategories = (type: string) => {
     const categoryList =

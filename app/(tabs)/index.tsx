@@ -39,7 +39,7 @@ const Page = () => {
           dispatch(setFilter(true));
         } else {
           setApiUrl(
-            "https://test.sakanijo.com/api/places?category=الكل&type=للإيجار"
+            "https://backend.sakanijo.com/api/places?category=الكل&type=للإيجار"
           ); // Set to an empty string to avoid unnecessary fetch
           dispatch(setFilter(false));
         }

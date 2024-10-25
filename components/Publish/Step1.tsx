@@ -40,7 +40,7 @@ const Step1 = ({ switchStep }) => {
   useEffect(() => {
     // Fetch available categories from the backend
     axios
-      .get("https://test.sakanijo.com/categories/slug") // Replace with your backend URL
+      .get("https://backend.sakanijo.com/categories/slug") // Replace with your backend URL
       .then((response) => {
         setAvailableCategories(response.data.slugs);
         setIsLoading(false); // Set loading to false after data is fetched

@@ -56,7 +56,7 @@ const DetailsPage = () => {
       const userId = await SecureStore.getItemAsync("userId");
       try {
         const response = await axios.get(
-          `https://test.sakanijo.com/api/places/${id}?user_id=${userId}`
+          `https://backend.sakanijo.com/api/places/${id}?user_id=${userId}`
         );
         setListing(response.data);
         console.log("listign data :", response.data);
@@ -153,7 +153,7 @@ const DetailsPage = () => {
         costumerId: result,
       });
       const response = await axios.post(
-        "https://test.sakanijo.com/api/bookings/add",
+        "https://backend.sakanijo.com/api/bookings/add",
         {
           checkIn: checkIn,
           checkOut: checkOut,
@@ -240,7 +240,7 @@ const DetailsPage = () => {
 
     try {
       const response = await axios.post(
-        "https://test.sakanijo.com/api/bookings/add",
+        "https://backend.sakanijo.com/api/bookings/add",
         {
           checkIn: checkIn,
           checkOut: checkOut,
@@ -289,7 +289,7 @@ const DetailsPage = () => {
 
     try {
       const response = await axios.post(
-        "https://test.sakanijo.com/api/bookings/add",
+        "https://backend.sakanijo.com/api/bookings/add",
         {
           checkIn: listing?.tripDate,
           checkOut: listing?.tripDate,
@@ -454,7 +454,7 @@ const DetailsPage = () => {
       console.log("listing id  :", id);
 
       try {
-        const response = await axios.post("https://test.sakanijo.com/like", {
+        const response = await axios.post("https://backend.sakanijo.com/like", {
           user_id: result,
           place_id: id,
         });
@@ -516,6 +516,8 @@ const DetailsPage = () => {
       alert("الرجاء تاكد من ان الواتساب محمل على جهازك");
     });
   };
+
+  
   const [modalVisible, setModal2Visible] = useState(false);
 
   const modalAVisible = () => {
@@ -569,7 +571,7 @@ const DetailsPage = () => {
             {photos.map((photo, index) => (
               <Image
                 source={{
-                  uri: `https://test.sakanijo.com/api/images/${encodeURIComponent(
+                  uri: `https://backend.sakanijo.com/api/images/${encodeURIComponent(
                     listing.folderName
                   )}/${encodeURIComponent(photo)}`,
                 }}
