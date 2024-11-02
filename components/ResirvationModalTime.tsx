@@ -20,8 +20,8 @@ import dayImage from "@/assets/images/day.png";
 import axios from "axios";
 import CustomAlert from "@/components/Alert";
 import moment from "moment";
-
 import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 const timeSlotsBeforeNoon = [
   "07:00 - 08:00",
   "08:00 - 09:00",
@@ -99,11 +99,14 @@ const ResirvationTime = ({ listingData }) => {
     });
   };
 
+  const token = SecureStore.getItem("token")
+
   const sendBookToBackend = async () => {
+
+
     let result = await SecureStore.getItemAsync("userId");
     try {
       console.log("user id :", result);
-
       const response = await axios.post(
         "https://backend.sakanijo.com/api/bookings/add",
         {
@@ -248,6 +251,9 @@ const ResirvationTime = ({ listingData }) => {
       <TouchableOpacity
         style={styles.openButton}
         onPress={() => {
+          if(!token){
+            return router.navigate("/login") ;
+          }
           setModalVisible(true);
           setStep(1); // Reset to the first step
         }}>

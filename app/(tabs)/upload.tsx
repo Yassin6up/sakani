@@ -35,6 +35,13 @@ const Page = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisible1, setModalVisible1] = useState(false);
 
+  const token = SecureStore.getItem("token")
+
+
+  if(!token){
+    return router.replace("/login") ;
+  }
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const data = useSelector((state) => state.publishData.value);

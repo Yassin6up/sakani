@@ -20,12 +20,17 @@ import axios from "axios";
 import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { useTranslation } from "react-i18next";
-
+import { router } from "expo-router";
 const Page = () => {
   // const items = useMemo(() => data as any, []);
   const [refresh, setRefresh] = useState<number>(0);
   const { t, i18n } = useTranslation();
+  const token = SecureStore.getItem("token")
 
+
+  if(!token){
+    return router.replace("/login") ;
+  }
   const [data, setData] = useState([]);
 
   useEffect(() => {

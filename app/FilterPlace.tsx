@@ -17,14 +17,15 @@ import { useDispatch } from "react-redux";
 import { setPlaces, setFilter, setMap } from "@/store/slices/posts";
 import * as SecureStore from "expo-secure-store";
 
+
 // import {placesFilter} from "@/assets/data/placesFilter"
 const FilterPlace = () => {
   const [location, setLocation] = useState("");
-  const [street, setStreet] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isItReturnBack, setReturn] = useState(false);
-  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   const placesFilter = [
     {
       name: t("amman"),
@@ -113,11 +114,7 @@ const FilterPlace = () => {
           lat: 31.9986751324795,
           long: 35.8452607106225,
         },
-        {
-          name: t("Gardens - Wasfi Altal street"),
-          lat: 31.9881294055518,
-          long: 35.8847677803112,
-        },
+     
         {
           name: t("Gardens - Wasfi Altal street"),
           lat: 31.9881294055518,
@@ -268,16 +265,7 @@ const FilterPlace = () => {
           lat: 31.9517057058083,
           long: 35.9147455852139,
         },
-        {
-          name: t("Third Circle"),
-          lat: 31.9540741034075,
-          long: 35.9045413029664,
-        },
-        {
-          name: t("Fourth Circle"),
-          lat: 31.9540741034075,
-          long: 35.897412020502,
-        },
+
         {
           name: t("Fourth Circle"),
           lat: 31.9540741034075,
@@ -323,11 +311,7 @@ const FilterPlace = () => {
           lat: 32.132388598726,
           long: 35.9714326656333,
         },
-        {
-          name: t("Abu Nseir"),
-          lat: 32.0609288003387,
-          long: 35.8806913960888,
-        },
+
         {
           name: t("Abu Nseir"),
           lat: 32.0609288003387,
@@ -338,11 +322,7 @@ const FilterPlace = () => {
           lat: 32.0103281983307,
           long: 35.9510484598612,
         },
-        {
-          name: t("Raghadan"),
-          lat: 31.981075135968,
-          long: 35.9520211057594,
-        },
+
         {
           name: t("Raghadan"),
           lat: 31.981075135968,
@@ -733,7 +713,7 @@ const FilterPlace = () => {
           lat: 31.8856662418424,
           long: 35.9681399734419,
         },
-
+  
         {
           name: t("Hettin"),
           lat: 31.8899890562335,
@@ -894,7 +874,7 @@ const FilterPlace = () => {
           lat: 31.6551378570019,
           long: 35.8572965211761,
         },
-
+  
         {
           name: t("Al Jizah - Sufa"),
           lat: 31.6684637668292,
@@ -930,7 +910,7 @@ const FilterPlace = () => {
           lat: 31.7355060910397,
           long: 35.8909693773708,
         },
-
+  
         {
           name: t("Safut"),
           lat: 32.0409832475262,
@@ -1130,7 +1110,7 @@ const FilterPlace = () => {
           lat: 32.130989450345,
           long: 36.0721408075896,
         },
-
+  
         {
           name: t("Zarqa - Alghabwi"),
           lat: 32.0555661014594,
@@ -1141,7 +1121,7 @@ const FilterPlace = () => {
           lat: 32.096581083872,
           long: 35.9279050585194,
         },
-
+  
         {
           name: t("Zarqa - Al-Azraq"),
           lat: 31.7805669080572,
@@ -1444,21 +1424,13 @@ const FilterPlace = () => {
           lat: 31.7633500665298,
           long: 35.7929810828385,
         },
-        {
-          name: t("Madaba"),
-          lat: 31.7089056958315,
-          long: 35.8008997114558,
-        },
+
         {
           name: t("Madaba - Khirbet al-Mukhayyat"),
           lat: 31.7535428708965,
           long: 35.6761246485521,
         },
-        {
-          name: t("Madaba - Main"),
-          lat: 31.7089056958315,
-          long: 35.7113204857407,
-        },
+
         {
           name: t("Madaba - Malih"),
           lat: 31.5658845888273,
@@ -1897,11 +1869,6 @@ const FilterPlace = () => {
           name: t("Irbid - Saru"),
           lat: 32.6409268948019,
           long: 35.8527114723914,
-        },
-        {
-          name: t("Irbid - Aydoun"),
-          lat: 32.5137410535789,
-          long: 35.8618219408144,
         },
         {
           name: t("Irbid - Aydoun - Al - Lawazim"),
@@ -2447,7 +2414,7 @@ const FilterPlace = () => {
           lat: 29.5501025768382,
           long: 35.0103255763938,
         },
-
+  
         {
           name: t("Aqaba - Eighth Area"),
           lat: 29.5580590330215,
@@ -2476,8 +2443,9 @@ const FilterPlace = () => {
       ],
     },
   ];
-
-  function removeQuotes(array) {
+  
+  // Function to remove quotes from names
+  const removeQuotes = (array) => {
     return array.map((item) => {
       item.name = item.name.replace(/"t\(([^)]+)\)"/g, "t($1)");
       item.places = item.places.map((place) => ({
@@ -2486,57 +2454,30 @@ const FilterPlace = () => {
       }));
       return item;
     });
-  }
+  };
 
-  let filteredCities = removeQuotes(placesFilter).filter((city) =>
+  // Filter cities based on search query
+  const filteredCities = removeQuotes(placesFilter).filter((city) =>
     city.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  let filteredPlaces = [];
 
+  // Reset location and street when returning back
   useEffect(() => {
-    filteredCities = removeQuotes(placesFilter).filter((city) =>
-      city.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setLocation("");
-    setStreet("");
-    filteredPlaces = [];
+    if (isItReturnBack) {
+      setLocation("");
+    }
   }, [isItReturnBack]);
 
-  if (location) {
-    const cityData = removeQuotes(placesFilter).find(
-      (cityData) => cityData.name === location
-    );
-
-    if (cityData) {
-      cityData.places.unshift({
-        name: t("allCitys"),
-        lat: cityData.coordinate.lat,
-        long: cityData.coordinate.long,
-      });
-
-      filteredPlaces = cityData.places.filter((place) =>
-        place.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-  }
-
+  // Handle place selection and API call
   const handlePlacePress = async (place) => {
     const apiUrl = `https://backend.sakanijo.com/places/filter/city?longitude=${place.long}&latitude=${place.lat}&name=${place.name} ${location}`;
-    console.log("url:", apiUrl);
     try {
       await SecureStore.setItemAsync("apiLink", apiUrl);
       await SecureStore.setItemAsync("placeName", place.name);
-      await SecureStore.setItemAsync(
-        "mapData",
-        JSON.stringify({
-          lat: place.lat,
-          long: place.long,
-        })
-      );
+      await SecureStore.setItemAsync("mapData", JSON.stringify({ lat: place.lat, long: place.long }));
       dispatch(setFilter(true));
 
       const response = await axios.get(apiUrl);
-      console.log("data from filter", response.data);
       dispatch(setPlaces(response.data.places));
       dispatch(setFilter());
       router.push("/(tabs)/");
@@ -2545,28 +2486,35 @@ const FilterPlace = () => {
     }
   };
 
-  if (!location) {
-    return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="ابحث عن مدينة"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <Text style={styles.label}> {t("select city")} </Text>
-        {filteredCities.map((cityData) => (
-          <TouchableOpacity
-            key={cityData.name}
-            onPress={() => setLocation(cityData.name)}>
-            <Text style={styles.item}>{t(cityData.name)}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    );
-  }
+  // Render city selection
+  const renderCitySelection = () => (
+    <ScrollView contentContainerStyle={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="ابحث عن مدينة"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <Text style={styles.label}>{t("select city")}</Text>
+      {filteredCities.slice(0, 12).map((cityData) => (
+        <TouchableOpacity
+          key={cityData.name}
+          onPress={() => setLocation(cityData.name)}
+        >
+          <Text style={styles.item}>{t(cityData.name)}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
 
-  if (!street) {
+  // Render place selection based on selected city
+  const renderPlaceSelection = () => {
+    if (!location) return null;
+
+    const cityData = removeQuotes(placesFilter).find((cityData) => cityData.name === location);
+    const places = cityData ? cityData.places : [];
+
+    
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <TextInput
@@ -2575,12 +2523,10 @@ const FilterPlace = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        <Text style={styles.label}> {location}</Text>
-        {filteredPlaces.map((place) => (
-          <TouchableOpacity
-            key={place.name}
-            onPress={() => handlePlacePress(place)}>
-            <Text style={styles.item}>{t(`${place.name}`)}</Text>
+        <Text style={styles.label}>{location}</Text>
+        {places.filter(place => place.name.toLowerCase().includes(searchQuery.toLowerCase())).map((place) => (
+          <TouchableOpacity key={place.lat} onPress={() => handlePlacePress(place)}>
+            <Text style={styles.item}>{t(place.name)}</Text>
           </TouchableOpacity>
         ))}
         <View style={styles.buttonContainer}>
@@ -2590,7 +2536,9 @@ const FilterPlace = () => {
         </View>
       </ScrollView>
     );
-  }
+  };
+
+  return location ? renderPlaceSelection() : renderCitySelection();
 };
 
 const styles = StyleSheet.create({

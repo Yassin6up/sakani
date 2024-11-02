@@ -60,9 +60,8 @@ if (!service) {
   return (
     <ScrollView style={styles.container}>
 
-    <View style={{ position : "relative" , 
-    top: "-10%" , height:140 , width : "100%" , backgroundColor : Colors.primary , borderRadius : 100, 
-    display :"flex" , justifyContent : "flex-end", alignItems : "center" }}>
+    <View style={{ height:140 , width : "100%" , backgroundColor : Colors.primary , borderRadius : 100, 
+    display :"flex" , justifyContent : "center", alignItems : "center" }}>
     <Text style={styles.title}>{service.title}</Text>
     </View>
     <Text style={{textAlign : "center" , fontFamily: "droidAr" , fontSize : 18 , marginTop    : "-30px"}}>{service.description}</Text>

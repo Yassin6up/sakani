@@ -50,6 +50,7 @@ const DetailsPage = () => {
   const [RoomsCounting, setRoomCounting] = useState({});
   const [liked, setLike] = useState(false);
   const [isAlertShown, setAlertShown] = useState(false);
+  const token = SecureStore.getItem("token")
 
   useEffect(() => {
     const getPlaceById = async (id) => {
@@ -130,6 +131,12 @@ const DetailsPage = () => {
   }, [listing]);
 
   const onsubmitRejester = async ({ totalPrice, dateSelected, period }) => {
+
+
+
+    if(!token){
+      return router.navigate("/login") ;
+    }
     console.log("total price:", totalPrice);
 
     // Find the earliest and latest dates in the dateSelected array
@@ -226,6 +233,10 @@ const DetailsPage = () => {
 
   const onsubmitGYM = async ({ price, subscription }) => {
     // Find the earliest and latest dates in the dateSelected array
+    if(!token){
+      return router.navigate("/login") ;
+    }
+
     const date = new Date();
     const checkIn = date.getFullYear();
     const checkOut = date.getFullYear();
@@ -285,6 +296,10 @@ const DetailsPage = () => {
   };
 
   const onsubmitTrip = async () => {
+    if(!token){
+      return router.navigate("/login") ;
+    }
+
     let result = await SecureStore.getItemAsync("userId");
 
     try {
@@ -359,15 +374,18 @@ const DetailsPage = () => {
           <TouchableOpacity style={styles.roundButton} onPress={shareListing}>
             <Ionicons name="share-outline" size={22} color={"#000"} />
           </TouchableOpacity>
+          {!token ?  null : 
           <TouchableOpacity
-            style={styles.roundButton}
-            onPress={() => handleLike()}>
-            {liked ? (
-              <Ionicons name="heart" size={22} color={Colors.heart} />
-            ) : (
-              <Ionicons name="heart-outline" size={22} color={"#000"} />
-            )}
-          </TouchableOpacity>
+          style={styles.roundButton}
+          onPress={() => handleLike()}>
+          {liked ? (
+            <Ionicons name="heart" size={22} color={Colors.heart} />
+          ) : (
+            <Ionicons name="heart-outline" size={22} color={"#000"} />
+          )}
+        </TouchableOpacity>
+          }
+          
         </View>
       ),
       headerLeft: () => (
@@ -491,11 +509,19 @@ const DetailsPage = () => {
   console.log("days", listing?.variable_prices);
 
   const makePhoneCall = (phoneNumber) => {
+    if(!token){
+      return router.navigate("/login") ;
+    }
+
     let phoneUrl = `tel:${phoneNumber}`;
     Linking.openURL(phoneUrl);
   };
 
   const sendSMS = (phoneNumber, text = "") => {
+    if(!token){
+      return router.navigate("/login") ;
+    }
+
     console.log("start sending sms");
     let smsUrl = `sms:${phoneNumber}`;
     if (Platform.OS === "ios") {
@@ -507,6 +533,11 @@ const DetailsPage = () => {
   };
 
   const sendWhatsApp = (phoneNumber, text = "") => {
+
+    if(!token){
+      return router.navigate("/login") ;
+    }
+
     let whatsappUrl = `whatsapp://send?phone=${phoneNumber}`;
     if (text) {
       whatsappUrl += `&text=${encodeURIComponent(text)}`;
@@ -907,6 +938,7 @@ const DetailsPage = () => {
         tripPrice={listing?.price}
         onSubmit={onsubmitTrip}
       />
+
       <ReservationModal
         visible={isModalVisible}
         onClose={toggleModal}

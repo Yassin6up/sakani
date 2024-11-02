@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, MaterialIcons, Zocial } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import {
   View,
@@ -318,6 +318,18 @@ const Page = () => {
           </TouchableOpacity>
         )}
       </View>
+      <TouchableOpacity
+            style={styles.btnOutline}
+            onPress={() => {
+              if(router.canGoBack()){
+                router.back()
+              }else{
+                router.replace("/(tabs)/")
+              }
+            }}>
+            <Zocial name="guest" size={24} style={defaultStyles.btnIcon} />
+            <Text style={styles.btnOutlineText}>تسجيل الدخول كضيف</Text>
+          </TouchableOpacity>
 
       <CustomAlert
         icon={icon} // Use any icon name from Material Icons
@@ -364,6 +376,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     paddingHorizontal: 10,
+    marginTop : 20
   },
   btnOutlineText: {
     color: "#000",

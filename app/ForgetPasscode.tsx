@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 import { router } from "expo-router";
@@ -11,6 +11,7 @@ const ForgetPasscode = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [receivedCode, setReceivedCode] = useState("");
+  const [lastRequestTime, setLastRequestTime] = useState(null);
 
   function formatPhoneNumber(phoneNumber) {
     const jordanCountryCode = "+962";
@@ -21,59 +22,81 @@ const ForgetPasscode = () => {
   }
 
   async function saveToken(key, value) {
-    console.log(value);
     await SecureStore.setItemAsync(key, value);
   }
 
-  const handlePhoneNumberSubmit = async () => {
-    const formatedPhone = formatPhoneNumber(phoneNumber);
+  async function saveLastRequestTime() {
+    const currentTime = Date.now().toString();
+    console.log("timesaved :",currentTime )
 
-    console.log("phone number :", formatedPhone);
+    await SecureStore.setItemAsync("lastRequestTime", currentTime);
+  }
+
+  async function getLastRequestTime() {
+    const storedTime = await SecureStore.getItemAsync("lastRequestTime");
+    if (storedTime) {
+      setLastRequestTime(storedTime);
+    }
+    return storedTime
+  }
+
+  const handlePhoneNumberSubmit = async () => {
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+    
+    // Get last request time and check if 1 minute has passed
+    const lastTime = await getLastRequestTime();
+    if (lastTime) {
+      console.log("timegited :",lastTime )
+
+      const currentTime = Date.now();
+      const timeDiff = currentTime - parseInt(lastTime);
+      if (timeDiff < 60000) {
+        Alert.alert("انتظر", "لقد قمت بالفعل بطلب رمز التحقق. يرجى الانتظار لمدة دقيقة قبل تقديم الطلب مرة أخرى.");
+        return;
+      }
+    }
+
     try {
       const response = await axios.post(
         "https://backend.sakanijo.com/check-phone",
-        { phoneNumber: formatedPhone }
+        { phoneNumber: formattedPhone }
       );
-
-      console.log("response :", response.data);
 
       if (response.data.success) {
         setReceivedCode(response.data.code); // Assuming the backend sends the code
-        console.log(response.data);
+        console.log(response.data.code);
+        await saveLastRequestTime(); // Save the timestamp of the request
+        console.log("numbersaved")
         setStep(2);
       } else {
-        Alert.alert("Error", "Phone number not found");
+        Alert.alert("خطأ", "لم يتم العثور على رقم الهاتف");
       }
     } catch (error) {
-      console.log(error);
-      Alert.alert("Error", "An error occurred while checking the phone number");
+      Alert.alert("خطأ", "An error occurred while checking the phone number");
     }
   };
-
   const handleVerificationSubmit = () => {
     if (verificationCode === receivedCode) {
       setStep(3);
     } else {
-      Alert.alert("Error", "Invalid verification code");
+      Alert.alert("خطأ", "رمز التحقق غلط ");
     }
   };
 
   const handleNewPasswordSubmit = async () => {
-    const formatedPhone = formatPhoneNumber(phoneNumber);
+    const formattedPhone = formatPhoneNumber(phoneNumber);
 
     try {
       const response = await axios.post(
         "https://backend.sakanijo.com/reset-password-forget",
-        { phoneNumber: formatedPhone, newPassword }
+        { phoneNumber: formattedPhone, newPassword }
       );
-      console.log(response.data);
       await saveToken("token", response.data.user.session_token.toString());
       await saveToken("userId", response.data.user.id.toString());
       await saveToken("userData", JSON.stringify(response.data.user));
       router.replace("/(tabs)/");
     } catch (error) {
-      console.log(error);
-      Alert.alert("Error", "An error occurred while resetting the password");
+      Alert.alert("خطأ", "An error occurred while resetting the password");
     }
   };
 
@@ -93,6 +116,7 @@ const ForgetPasscode = () => {
             title="التالي"
             color={Colors.primary}
             onPress={handlePhoneNumberSubmit}
+
           />
         </View>
       )}

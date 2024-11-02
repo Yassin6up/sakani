@@ -9,6 +9,7 @@ import { setPlaces, setFilter } from "@/store/slices/posts";
 import * as SecureStore from "expo-secure-store";
 import Colors from "@/constants/Colors";
 import { useTranslation } from "react-i18next";
+import ErrorModal from "@/components/ErrorModal";
 
 const Page = () => {
   const items = useSelector((state) => state.places.value.places);
@@ -72,7 +73,8 @@ const Page = () => {
         dispatch(setPlaces(response.data.places));
       } catch (err) {
         console.error("Error fetching places:", err);
-        setError(err);
+        setError(err.response.data);
+
       } finally {
         setLoading(false);
       }

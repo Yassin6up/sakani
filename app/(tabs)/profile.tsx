@@ -23,6 +23,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import ConfirmDeleteModal from "@/components/DeleteModal";
 import PhoneModal from "@/components/PhoneModal";
 import { useSelector } from "react-redux";
+import ProfileMenu from "@/components/ProfileList";
+import MyAdsContent from "@/components/MyAds";
 const Page = () => {
   const { t, i18n } = useTranslation();
   const [firstName, setFirstName] = useState("");
@@ -35,9 +37,19 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [modal, setModal] = useState(false);
+
   const [refrish, setRefrish] = useState(false);
   const [phoneModalVisible, setPhoneModalVisible] = useState(false);
   const globalSearch = useSelector((state) => state.places.value.globalFilter);
+
+  const token = SecureStore.getItem("token")
+
+
+  if(!token){
+    return router.replace("/login");
+  }
+
   console.log("globalSearch : ", globalSearch);
   useEffect(() => {
     const getUserData = async () => {
@@ -118,56 +130,10 @@ const Page = () => {
       </View>
       <Text style={styles.adTitle}>{item.title}</Text>
 
-      <ConfirmDeleteModal
-        isVisible={visible}
-        onConfirm={async () => {
-          try {
-            const response = await axios.post(
-              `https://backend.sakanijo.com/delete/places/${item.id}`
-            );
-            if (response.status === 200) {
-              setRefrish(!refrish);
-              setVisible(false);
-            }
-          } catch (error) {
-            console.error("Error deleting place:", error);
-          } finally {
-          }
-          // delete item
-        }}
-        onClose={() => {
-          setVisible(false);
-        }}
-      />
+
     </View>
   );
 
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      const ownerId = await SecureStore.getItem("userId");
-      console.log(ownerId);
-
-      try {
-        const response = await axios.get(
-          "https://backend.sakanijo.com/profile/places",
-          {
-            params: { ownerId },
-          }
-        );
-
-        console.log(response);
-        setAds(response.data.ads);
-        setBooking(response.data.booking);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching places:", err);
-        setError("Failed to fetch places");
-        setLoading(false);
-      }
-    };
-
-    fetchPlaces();
-  }, [refrish, globalSearch]);
 
   const handleEditPhone = () => {
     setPhoneModalVisible(true);
@@ -194,7 +160,13 @@ const Page = () => {
     return `${hours}:${minutes} ${day}-${month}-${year}`;
   };
 
+
+  const makeModalShown = ()=>{
+    setModal(!modal)
+  }
+
   return (
+    <>
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>{t("profile")}</Text>
@@ -298,7 +270,7 @@ const Page = () => {
           {t("joined")} {formatDate(user.created)}
         </Text>
       </View>
-
+{/* 
       <Text
         style={{
           fontSize: 20,
@@ -307,9 +279,8 @@ const Page = () => {
           marginBottom: 20,
         }}>
         {t("myAds")}
-      </Text>
-
-      <View style={styles.tabsContainer}>
+      </Text> */}
+      {/* <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[
             styles.tabButton,
@@ -363,29 +334,15 @@ const Page = () => {
             </View>
           ))}
         </Swiper>
-      )}
+      )} */}
 
-      <Pressable
-        onPress={() => {
-          SecureStore.deleteItemAsync("token");
-          SecureStore.deleteItemAsync("userData");
-          SecureStore.deleteItemAsync("userId");
-          router.replace("/login");
-        }}
-        style={{
-          backgroundColor: Colors.primary,
-          width: "60%",
-          height: 40,
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 60,
-          borderRadius: 60,
-          alignSelf: "center",
-        }}>
-        <Text style={{ color: "white", fontFamily: "droidAr", fontSize: 20 }}>
-          {t("logout")}
-        </Text>
-      </Pressable>
+
+
+
+      <ProfileMenu  controleModal={makeModalShown}/>
+
+
+<Text style={{fontWeight : "500" , color: "gray", textAlign : "center" , marginTop : 10 , marginBottom : 25}}>V1.0</Text>
 
       <PhoneModal
         visible={phoneModalVisible}
@@ -400,6 +357,8 @@ const Page = () => {
         updateUserPhone={updateUserPhone}
       />
     </ScrollView>
+         <MyAdsContent open={modal} />
+</>
   );
 };
 

@@ -4,7 +4,7 @@ import { View, Text, Modal, Button, Image, StyleSheet, Pressable } from 'react-n
 
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import ModalHeaderText from "@/components/ModalHeaderText";
 import { TouchableOpacity } from "react-native";
@@ -122,6 +122,10 @@ function RootLayoutNav({ token }) {
       <Stack.Screen name="listing/[id]" options={{ headerTitle: "" }} />
       <Stack.Screen name="services/[id]" options={{ headerTitle: "" }} />
       <Stack.Screen name="updateAds" options={{ headerTitle: ""  , headerBackTitle:"الرجوع"}} />
+      <Stack.Screen name="Terms" options={{ headerTitle: ""  , headerBackTitle:"الرجوع"}} />
+      <Stack.Screen name="Polic" options={{ headerTitle: ""  , headerBackTitle:"الرجوع"}} />
+      <Stack.Screen name="support" options={{ headerTitle: ""  , headerBackTitle:"الرجوع"}} />
+
       <Stack.Screen name="BookCar" options={{ headerTitle: ""  , headerBackTitle:"الرجوع"}} />
       <Stack.Screen name="Filter" options={{ headerTitle: "بحت دقيق"  , headerBackTitle:"الرجوع " , headerTitleStyle:{fontFamily :"droidAr"} }}  />
       <Stack.Screen name="FilterPlace" options={{ headerTitle: "بحت داخل الاردن"  , headerBackTitle:"الرجوع " , headerTitleStyle:{fontFamily :"droidAr"} }}  />

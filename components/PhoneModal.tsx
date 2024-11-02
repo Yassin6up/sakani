@@ -8,28 +8,31 @@ import {
   Alert,
   Pressable,
   ActivityIndicator,
-  Image,
 } from "react-native";
 import Colors from "@/constants/Colors";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
 
 const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
   const { t } = useTranslation();
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [resendEnabled, setResendEnabled] = useState(false);
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [lastRequestTime, setLastRequestTime] = useState(null);
+  const [resendEnabled, setResendEnabled] = useState(true);
 
   useEffect(() => {
     if (visible) {
       setNewPhoneNumber("");
-      setVerificationCode("");
+      setCode("");
       setIsVerifying(false);
       setLoading(false);
+      setLastRequestTime(null);
+      setResendEnabled(true);
     }
   }, [visible]);
 
@@ -40,6 +43,27 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
     }
     return phoneNumber;
   }
+
+  const saveLastRequestTime = async () => {
+    const currentTime = Date.now().toString();
+    await SecureStore.setItemAsync("lastRequestTime", currentTime);
+    setLastRequestTime(currentTime);
+  };
+
+  const getLastRequestTime = async () => {
+    const storedTime = await SecureStore.getItemAsync("lastRequestTime");
+    if (storedTime) {
+       setLastRequestTime(storedTime);
+    }
+    return  storedTime ;
+  };
+
+  const canRequestVerification = (lsT) => {
+    if (!lsT) return true;
+    const currentTime = Date.now();
+    const timeDiff = currentTime - parseInt(lsT);
+    return timeDiff >= 60000; 
+  };
 
   const handlePhoneSubmit = async () => {
     if (code !== verificationCode) {
@@ -61,14 +85,14 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
       if (response.status === 200) {
         console.log(response.data);
         setCode("");
-        Alert.alert(t("Success"), t("Phone number updated successfully"));
+        Alert.alert(t("تم بنجاح"), t("تم تحديث رقم الهاتف بنجاح"));
         onClose(newPhoneNumber); // Close the modal after success
       }
     } catch (error) {
       console.error("Error updating phone number", error);
       Alert.alert(
-        t("Error"),
-        t("Failed to update phone number. Please try again.")
+        t("خطأ"),
+        t("فشل تحديث رقم الهاتف. يرجى المحاولة مرة أخرى.")
       );
     } finally {
       setLoading(false);
@@ -79,6 +103,13 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
     if (!newPhoneNumber) {
       return;
     }
+    const lastTime = await getLastRequestTime(); // Get last request time
+
+    if (!canRequestVerification(lastTime)) {
+      Alert.alert(t("انتظر"), t("يرجى الانتظار قبل طلب رمز التحقق الجديد."));
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -95,11 +126,12 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
         setIsVerifying(true);
         setResendEnabled(false);
         setVerificationCode(response.data.code);
-        setTimeout(() => setResendEnabled(true), 25000);
+        await saveLastRequestTime(); // Save the current request time
+        setTimeout(() => setResendEnabled(true), 25000); // Enable resend after 25 seconds
       }
     } catch (error) {
       console.error("Error verifying phone number", error);
-      Alert.alert(t("Error"), t("Verification failed. Please try again."));
+      Alert.alert(t("خطأ"), t("فشلت عملية التحقق. يرجى المحاولة مرة أخرى."));
     } finally {
       setLoading(false);
     }
@@ -112,16 +144,14 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
           style={{ position: "absolute", top: 60, left: 50 }}
           onPress={() => {
             onClose();
-          }}>
+          }}
+        >
           <MaterialIcons name="arrow-back-ios" size={25} />
         </Pressable>
         <View style={styles.modalContent}>
-          {/* <Image  /> */}
           {!isVerifying ? (
             <>
-              <Text style={styles.modalTitle}>
-                {t("Enter new phone number")}
-              </Text>
+              <Text style={styles.modalTitle}>{t("Enter new phone number")}</Text>
               <TextInput
                 style={styles.phoneInput}
                 value={newPhoneNumber}
@@ -132,7 +162,8 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
               <Pressable
                 style={[styles.button, loading && styles.disabledButton]}
                 onPress={handleVerificationSubmit}
-                disabled={loading}>
+                disabled={loading || !resendEnabled}
+              >
                 {loading ? (
                   <ActivityIndicator color={Colors.white} />
                 ) : (
@@ -142,9 +173,7 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
             </>
           ) : (
             <>
-              <Text style={styles.modalTitle}>
-                {t("Enter verification code")}
-              </Text>
+              <Text style={styles.modalTitle}>{t("Enter verification code")}</Text>
               <TextInput
                 style={styles.phoneInput}
                 value={code}
@@ -155,7 +184,8 @@ const PhoneModal = ({ visible, onClose, userId, updateUserPhone }) => {
               <Pressable
                 style={[styles.button, loading && styles.disabledButton]}
                 onPress={handlePhoneSubmit}
-                disabled={loading}>
+                disabled={loading}
+              >
                 {loading ? (
                   <ActivityIndicator color={Colors.white} />
                 ) : (
@@ -213,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhoneModal;
+export default PhoneModal
